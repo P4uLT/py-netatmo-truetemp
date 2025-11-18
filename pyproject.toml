@@ -1,0 +1,18 @@
+[project]
+name = "py-netatmo-truetemp"
+version = "0.1.0"
+description = "Python client for Netatmo API with truetemperature control - set room temperatures programmatically"
+readme = "README.md"
+requires-python = ">=3.13"
+dependencies = [
+    "click>=8.1.8",
+    "platformdirs>=4.0.0",
+    "requests==2.32.3",
+]
+
+[dependency-groups]
+dev = [
+    "mypy>=1.18.2",
+    "pylint>=4.0.3",
+    "ruff>=0.14.5",
+]
