@@ -32,7 +32,6 @@ export NETATMO_PASSWORD="your_password"
 
 Optional:
 ```bash
-export NETATMO_SCOPES="read_station read_thermostat write_thermostat..."  # Has sensible defaults
 export NETATMO_HOME_ID="your_home_id"  # Auto-detected if not set
 ```
 

@@ -46,12 +46,6 @@ class NetatmoConfig:
             )
 
         optional_config = {
-            "scopes": os.environ.get(
-                "NETATMO_SCOPES",
-                "read_station read_thermostat write_thermostat read_camera "
-                "write_camera access_camera read_presence access_presence "
-                "read_smokedetector read_homecoach",
-            ),
             "home_id": os.environ.get("NETATMO_HOME_ID"),
         }
 
@@ -70,7 +64,6 @@ def create_netatmo_api_with_spinner() -> NetatmoAPI:
         api = NetatmoAPI(
             username=config["username"],
             password=config["password"],
-            scopes=config["scopes"],
             home_id=config.get("home_id"),
         )
 

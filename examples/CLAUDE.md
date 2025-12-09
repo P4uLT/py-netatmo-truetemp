@@ -229,7 +229,7 @@ py-netatmo-truetemp = { path = "..", editable = true }
 
 Environment configuration (git-ignored):
 - **Credentials**: `NETATMO_USERNAME`, `NETATMO_PASSWORD`
-- **Optional**: `NETATMO_HOME_ID`, `NETATMO_SCOPES`
+- **Optional**: `NETATMO_HOME_ID`
 - **Room IDs**: `BUREAU_ID`, `SALLE_A_MANGER_ID`, etc. (for task shortcuts)
 
 ### Taskfile.yml

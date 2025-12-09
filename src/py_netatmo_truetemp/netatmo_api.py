@@ -29,11 +29,6 @@ class NetatmoAPI:
     """
 
     DEFAULT_ENDPOINT = "https://api.netatmo.com"
-    DEFAULT_SCOPES = (
-        "read_station read_thermostat write_thermostat read_camera "
-        "write_camera access_camera read_presence access_presence "
-        "read_smokedetector read_homecoach"
-    )
 
     def __init__(
         self,
@@ -41,14 +36,12 @@ class NetatmoAPI:
         password: str,
         home_id: str | None = None,
         endpoint: str = DEFAULT_ENDPOINT,
-        scopes: str | None = None,
         cookies_file: str | None = None,
         session: requests.Session | None = None,
     ) -> None:
         logger.info("Initializing Netatmo API client")
 
         self.endpoint = endpoint
-        self.scopes = scopes or self.DEFAULT_SCOPES
 
         if cookies_file is None:
             cache_dir = platformdirs.user_cache_dir("netatmo", "py-netatmo-truetemp")
