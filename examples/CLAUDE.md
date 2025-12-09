@@ -20,7 +20,7 @@ py-netatmo-truetemp = { path = "..", editable = true }
 ```
 
 **Development workflow**:
-1. Edit library code in `../src/netatmo_api/`
+1. Edit library code in `../src/py_netatmo_truetemp/`
 2. Run CLI immediately - changes are live
 3. No reinstallation needed
 
@@ -106,7 +106,7 @@ The editable install means library changes are immediately available:
 
 ```bash
 # 1. Edit library source
-vim ../src/netatmo_api/thermostat_service.py
+vim ../src/py_netatmo_truetemp/thermostat_service.py
 
 # 2. Test immediately (no reinstall needed)
 task bureau TEMP=20.5
@@ -119,7 +119,7 @@ task bureau TEMP=20.5
 python -m py_compile cli.py
 
 # Syntax check library
-python -m py_compile ../src/netatmo_api/*.py
+python -m py_compile ../src/py_netatmo_truetemp/*.py
 ```
 
 ### Adding New CLI Examples
@@ -128,7 +128,7 @@ Create new Python files demonstrating library usage:
 
 ```python
 # examples/monitor.py
-from netatmo_api import NetatmoAPI
+from py_netatmo_truetemp import NetatmoAPI
 import os
 
 api = NetatmoAPI(
@@ -159,7 +159,7 @@ The CLI demonstrates best practices for using the library:
 
 ```python
 # cli.py shows simple library usage
-from netatmo_api import NetatmoAPI
+from py_netatmo_truetemp import NetatmoAPI
 import os
 
 # Initialize with environment variables
@@ -261,5 +261,5 @@ uv add tabulate
 ## See Also
 
 - **`../CLAUDE.md`** - Core library architecture, design patterns, and API documentation
-- **`../src/netatmo_api/`** - Library source code
+- **`../src/py_netatmo_truetemp/`** - Library source code
 - **`cli.py`** - CLI implementation demonstrating library usage

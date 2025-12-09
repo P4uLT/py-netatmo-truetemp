@@ -5,8 +5,8 @@ import os
 
 import click
 
-from netatmo_api import NetatmoAPI
-from netatmo_api.logger import setup_logger
+from py_netatmo_truetemp import NetatmoAPI
+from py_netatmo_truetemp.logger import setup_logger
 
 logger = setup_logger(__name__)
 

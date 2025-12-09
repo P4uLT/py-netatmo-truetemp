@@ -37,7 +37,7 @@ export NETATMO_HOME_ID="your_home_id"  # Auto-detected if not set
 
 ```python
 import os
-from netatmo_api import NetatmoAPI
+from py_netatmo_truetemp import NetatmoAPI
 
 # Initialize the API (uses cookie-based authentication)
 api = NetatmoAPI(
@@ -53,24 +53,6 @@ api.set_truetemperature(
     room_id="2631283693",
     corrected_temperature=20.5
 )
-```
-
-## Task System
-
-The project includes a Taskfile for common operations:
-
-```bash
-# Set temperature for Bureau
-task bureau TEMP=20.5
-
-# Set temperature for Salle à manger
-task salle-a-manger TEMP=21.0
-
-# Set temperature for Chambre Liam
-task chambre-liam TEMP=19.3
-
-# List all tasks
-task list
 ```
 
 ## Architecture
@@ -91,7 +73,7 @@ NetatmoAPI (Facade)
 For advanced use cases, you can use individual components:
 
 ```python
-from netatmo_api import (
+from py_netatmo_truetemp import (
     CookieStore,
     AuthenticationManager,
     NetatmoApiClient,
@@ -125,31 +107,48 @@ auth_manager = AuthenticationManager(
 
 ## Project Structure
 
+This project uses a **library + examples** structure:
+
 ```
-src/netatmo_api/
-   ├── __init__.py              # Package exports
-   ├── netatmo_api.py           # Main facade
-   ├── cookie_store.py          # Cookie persistence
-   ├── auth_manager.py          # Authentication
-   ├── api_client.py            # HTTP client
-   ├── home_service.py          # Home operations
-   ├── thermostat_service.py    # Thermostat operations
-   └── logger.py                # Logging utilities
+src/py_netatmo_truetemp/     # Core library (installable package)
+   ├── __init__.py            # Package exports
+   ├── netatmo_api.py         # Main facade
+   ├── cookie_store.py        # Cookie persistence
+   ├── auth_manager.py        # Authentication
+   ├── api_client.py          # HTTP client
+   ├── home_service.py        # Home operations
+   ├── thermostat_service.py  # Thermostat operations
+   ├── validators.py          # Input validation
+   ├── exceptions.py          # Custom exceptions
+   ├── constants.py           # API endpoints
+   └── logger.py              # Logging utilities
+
+examples/                     # Example applications (independent)
+   ├── cli.py                 # CLI application
+   ├── pyproject.toml         # Examples dependencies
+   ├── Taskfile.yml           # Task runner configuration
+   ├── .venv/                 # Isolated virtual environment
+   └── README.md              # CLI setup and usage
 ```
 
 ## Development
 
-```bash
-# Run Python syntax check
-python -m py_compile src/netatmo_api/*.py
+### Library Development
 
-# Run a task
-task bureau TEMP=20.5
+```bash
+# Syntax check library modules
+python -m py_compile src/py_netatmo_truetemp/*.py
 ```
+
+### Testing with Examples
+
+The `examples/` folder contains independent applications for testing library changes. See [`examples/README.md`](examples/README.md) for setup and usage instructions.
 
 ## Documentation
 
-- [CLAUDE.md](CLAUDE.md) - Development guide for Claude Code
+- [CLAUDE.md](CLAUDE.md) - Core library architecture and development guide
+- [examples/README.md](examples/README.md) - CLI setup and usage instructions
+- [examples/CLAUDE.md](examples/CLAUDE.md) - CLI development workflow
 
 ## License
 

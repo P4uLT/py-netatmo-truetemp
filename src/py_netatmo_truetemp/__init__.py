@@ -1,7 +1,7 @@
 """Netatmo API client package.
 
 Example:
-    >>> from netatmo_api import NetatmoAPI
+    >>> from py_netatmo_truetemp import NetatmoAPI
     >>> api = NetatmoAPI(
     ...     username=os.environ['NETATMO_USERNAME'],
     ...     password=os.environ['NETATMO_PASSWORD']

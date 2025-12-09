@@ -21,4 +21,4 @@ dev = [
 ]
 
 [tool.hatch.build.targets.wheel]
-packages = ["src/netatmo_api"]
+packages = ["src/py_netatmo_truetemp"]

@@ -1,4 +1,4 @@
-"""Logging configuration for netatmo_api package."""
+"""Logging configuration for py_netatmo_truetemp package."""
 
 import logging
 import os

@@ -18,7 +18,7 @@ uv sync                    # Install dependencies
 
 ```bash
 # Syntax check all library modules
-python -m py_compile src/netatmo_api/*.py
+python -m py_compile src/py_netatmo_truetemp/*.py
 ```
 
 ## CLI Examples
@@ -33,7 +33,7 @@ The core library follows **SOLID principles** with a layered architecture using 
 
 ### Key Architectural Patterns
 
-**Facade Pattern**: `NetatmoAPI` (in `src/netatmo_api/netatmo_api.py`) acts as a simple facade coordinating all services. All dependencies flow through constructor injection.
+**Facade Pattern**: `NetatmoAPI` (in `src/py_netatmo_truetemp/netatmo_api.py`) acts as a simple facade coordinating all services. All dependencies flow through constructor injection.
 
 **Layered Architecture**:
 ```
@@ -112,7 +112,7 @@ Uses modern Python 3.10+ syntax:
 ### Adding a New Service (e.g., Camera Support)
 
 ```python
-# src/netatmo_api/camera_service.py
+# src/py_netatmo_truetemp/camera_service.py
 class CameraService:
     def __init__(self, api_client: NetatmoApiClient):
         self.api_client = api_client
@@ -152,7 +152,7 @@ This project uses a **library + examples** structure for clean separation:
 
 ### Core Library (Installable Package)
 ```
-src/netatmo_api/            # Installable library package
+src/py_netatmo_truetemp/    # Installable library package
 ├── __init__.py             # Public API exports
 ├── netatmo_api.py          # Facade
 ├── cookie_store.py         # Cookie persistence
@@ -196,14 +196,14 @@ examples/                   # Independent examples folder
 
 **Testing**:
 - Test library changes using example applications
-- Validate with `python -m py_compile src/netatmo_api/*.py`
+- Validate with `python -m py_compile src/py_netatmo_truetemp/*.py`
 
 ## Using the Library
 
 ### Basic Usage
 
 ```python
-from netatmo_api import NetatmoAPI
+from py_netatmo_truetemp import NetatmoAPI
 
 # Initialize with credentials
 api = NetatmoAPI(
@@ -244,5 +244,5 @@ api = NetatmoAPI(
 ## See Also
 
 - **`examples/CLAUDE.md`** - CLI setup, usage, and development workflow
-- **`src/netatmo_api/__init__.py`** - Public API exports
+- **`src/py_netatmo_truetemp/__init__.py`** - Public API exports
 - **`pyproject.toml`** - Build configuration and dependencies
