@@ -1,52 +1,35 @@
 # CLAUDE.md
 
-This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
+This file provides guidance to Claude Code (claude.ai/code) when working with the core library in this repository.
 
-## Development Commands
+## Project Overview
 
-### Environment Setup
+This is a reusable Python library for interacting with the Netatmo API, with a focus on thermostat control and temperature management. The library follows SOLID principles with clean architecture patterns.
+
+## Core Library Setup
+
 ```bash
+# In root directory
 uv venv                    # Create virtual environment
 uv sync                    # Install dependencies
 ```
 
-### Running the Application
-```bash
-# Using task runner (preferred)
-task bureau TEMP=20.5              # Set Bureau temperature
-task salle-a-manger TEMP=21.0      # Set Salle à manger temperature
-task chambre-liam TEMP=19.3        # Set Chambre Liam temperature
-task couloir TEMP=18.5             # Set Couloir temperature
-task set-temp ROOM_ID=<id> TEMP=20 # Set custom room temperature
-task list                          # List all tasks
-
-# Direct CLI usage
-uv run python src/netatmo.py --room-id <room_id> --temperature <temp>
-uv run python src/netatmo.py --room-id 2631283693 --temperature 20.5
-```
-
 ### Validation
+
 ```bash
-python -m py_compile src/netatmo_api/*.py    # Syntax check all modules
-python -m py_compile src/netatmo.py          # Syntax check CLI
+# Syntax check all library modules
+python -m py_compile src/netatmo_api/*.py
 ```
 
-### Required Environment Variables
-The application requires these environment variables to be set:
-```bash
-NETATMO_USERNAME        # Netatmo account username
-NETATMO_PASSWORD        # Netatmo account password
-```
+## CLI Examples
 
-Optional environment variables:
-```bash
-NETATMO_SCOPES         # OAuth2 scopes (has sensible defaults)
-NETATMO_HOME_ID        # Default home ID (auto-detected if not set)
-```
+The `examples/` folder contains demonstration applications showing how to use the library. Each example has its own isolated environment and configuration.
+
+For CLI setup, usage, and development workflow, see **`examples/CLAUDE.md`**.
 
 ## Architecture Overview
 
-This codebase follows **SOLID principles** with a layered architecture using dependency injection throughout.
+The core library follows **SOLID principles** with a layered architecture using dependency injection throughout.
 
 ### Key Architectural Patterns
 
@@ -54,7 +37,7 @@ This codebase follows **SOLID principles** with a layered architecture using dep
 
 **Layered Architecture**:
 ```
-CLI Layer (src/netatmo.py)
+Application Layer (Consumer applications)
     ↓
 Facade Layer (NetatmoAPI)
     ↓
@@ -83,7 +66,7 @@ Infrastructure Layer (NetatmoApiClient, AuthenticationManager, CookieStore)
 ### Data Flow for Temperature Setting
 
 ```
-CLI → NetatmoAPI.set_truetemperature()
+Application → NetatmoAPI.set_truetemperature()
   → ThermostatService.set_room_temperature()
     → HomeService.get_home_status() [fetches current temp]
     → NetatmoApiClient.post("/api/truetemperature")
@@ -158,26 +141,108 @@ Inject into `AuthenticationManager` instead of `CookieStore`.
 
 ## Debugging
 
-**Authentication issues**: Delete cached cookies (see paths above) and check env vars
-**API failures**: Enable debug logging in `logger.py`, check Netatmo status
+**Authentication issues**: Delete cached cookies (see paths above) and verify credentials
+**API failures**: Enable debug logging in `logger.py`, check Netatmo API status
 **Temperature not working**: Verify room ID via `homesdata()`, check `get_home_status()` returns valid data
+**Import issues**: Ensure `uv sync` completed successfully
 
-## Code Organization
+## Package Structure
 
+This project uses a **library + examples** structure for clean separation:
+
+### Core Library (Installable Package)
 ```
-src/
-├── netatmo.py              # CLI entry point
-└── netatmo_api/
-    ├── netatmo_api.py      # Facade
-    ├── cookie_store.py     # Cookie persistence
-    ├── auth_manager.py     # Authentication + caching
-    ├── api_client.py       # HTTP + retry
-    ├── home_service.py     # Home operations
-    ├── thermostat_service.py # Temperature control
-    ├── validators.py       # Input validation
-    ├── exceptions.py       # Custom exceptions
-    ├── constants.py        # API endpoints
-    └── logger.py           # Logging
+src/netatmo_api/            # Installable library package
+├── __init__.py             # Public API exports
+├── netatmo_api.py          # Facade
+├── cookie_store.py         # Cookie persistence
+├── auth_manager.py         # Authentication + caching
+├── api_client.py           # HTTP + retry
+├── home_service.py         # Home operations
+├── thermostat_service.py   # Temperature control
+├── validators.py           # Input validation
+├── exceptions.py           # Custom exceptions
+├── constants.py            # API endpoints
+└── logger.py               # Logging
 ```
 
-**Guidelines**: Keep components <250 lines, one class per file, use dependency injection, snake_case methods, PascalCase classes
+### Examples (Independent Applications)
+```
+examples/                   # Independent examples folder
+├── cli.py                  # CLI application
+├── pyproject.toml          # Examples dependencies
+├── .mise.local.toml        # Environment configuration
+├── Taskfile.yml            # Task runner configuration
+├── .venv/                  # Isolated virtual environment
+└── CLAUDE.md               # Examples-specific documentation
+```
+
+**Build Configuration**: The root `pyproject.toml` includes `[build-system]` configuration using Hatchling, making the library installable via pip or as an editable dependency.
+
+**Example Applications**: The `examples/` folder contains independent demonstration applications (e.g., CLI tool). Each example has its own environment and uses the library via editable install. See `examples/CLAUDE.md` for setup and usage instructions.
+
+## Development Guidelines
+
+**Code Style**:
+- Keep components <250 lines
+- One class per file
+- Use dependency injection throughout
+- snake_case for methods and variables
+- PascalCase for classes
+
+**Type Safety**:
+- Return types required for all public methods
+- Use modern Python 3.10+ type hints (`Type | None`, `dict[K, V]`, `list[T]`)
+
+**Testing**:
+- Test library changes using example applications
+- Validate with `python -m py_compile src/netatmo_api/*.py`
+
+## Using the Library
+
+### Basic Usage
+
+```python
+from netatmo_api import NetatmoAPI
+
+# Initialize with credentials
+api = NetatmoAPI(
+    username="your.email@example.com",
+    password="your-password"
+)
+
+# Get homes data
+homes = api.homesdata()
+
+# Set room temperature
+api.set_truetemperature(room_id="2631283693", temperature=20.5)
+
+# Get home status
+status = api.get_home_status(home_id="your-home-id")
+```
+
+### Advanced Usage
+
+**Custom Cookie Storage**:
+```python
+api = NetatmoAPI(
+    username="...",
+    password="...",
+    cookies_file="/custom/path/cookies.json"
+)
+```
+
+**Specifying Home ID**:
+```python
+api = NetatmoAPI(
+    username="...",
+    password="...",
+    home_id="your-home-id"  # Skip auto-detection
+)
+```
+
+## See Also
+
+- **`examples/CLAUDE.md`** - CLI setup, usage, and development workflow
+- **`src/netatmo_api/__init__.py`** - Public API exports
+- **`pyproject.toml`** - Build configuration and dependencies

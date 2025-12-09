@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""CLI interface for Netatmo API operations."""
+"""CLI example for py-netatmo-truetemp library."""
 
 import os
 

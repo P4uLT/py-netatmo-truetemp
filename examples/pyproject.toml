@@ -1,0 +1,13 @@
+[project]
+name = "netatmo-cli-examples"
+version = "0.1.0"
+description = "CLI examples for py-netatmo-truetemp"
+readme = "README.md"
+requires-python = ">=3.13"
+dependencies = [
+    "py-netatmo-truetemp",
+    "click>=8.1.8",
+]
+
+[tool.uv.sources]
+py-netatmo-truetemp = { path = "..", editable = true }
