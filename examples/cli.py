@@ -2,11 +2,24 @@
 """CLI example for py-netatmo-truetemp library."""
 
 import os
+import sys
 
 import click
+from rich.console import Console
+from rich.table import Table
 
 from py_netatmo_truetemp import NetatmoAPI
+from py_netatmo_truetemp.exceptions import (
+    AuthenticationError,
+    ApiError,
+    NetatmoError,
+    ValidationError,
+    RoomNotFoundError,
+    HomeNotFoundError,
+)
 from py_netatmo_truetemp.logger import setup_logger
+
+console = Console()
 
 logger = setup_logger(__name__)
 
@@ -54,6 +67,11 @@ class NetatmoService:
     def __init__(self, api: NetatmoAPI):
         self.api = api
 
+    def list_thermostat_rooms(self, home_id: str | None = None) -> list[dict[str, str]]:
+        """Lists all rooms with thermostats."""
+        logger.info("Fetching rooms with thermostats")
+        return self.api.list_thermostat_rooms(home_id=home_id)
+
     def set_room_temperature(
         self, room_id: str, corrected_temperature: float, home_id: str | None = None
     ) -> dict:
@@ -93,7 +111,72 @@ def create_netatmo_api() -> NetatmoAPI:
 
 
 # CLI Interface
-@click.command()
+@click.group()
+def cli():
+    """Netatmo thermostat control CLI."""
+    pass
+
+
+@cli.command(name="list-rooms")
+@click.option(
+    "--home-id", default=None, help="Home ID (optional, uses default if not provided)"
+)
+def list_rooms(home_id: str | None = None):
+    """Lists all rooms with thermostats.
+
+    Example:
+        python cli.py list-rooms
+        python cli.py list-rooms --home-id <home_id>
+    """
+    try:
+        api = create_netatmo_api()
+        service = NetatmoService(api)
+
+        rooms = service.list_thermostat_rooms(home_id=home_id)
+
+        if not rooms:
+            console.print("[yellow]No rooms with thermostats found.[/yellow]")
+            return
+
+        table = Table(title=f"Thermostat Rooms ({len(rooms)} found)")
+        table.add_column("Room ID", style="cyan", no_wrap=True)
+        table.add_column("Room Name", style="green")
+
+        for room in rooms:
+            table.add_row(room['id'], room['name'])
+
+        console.print(table)
+
+    except ValueError as e:
+        logger.error(f"Configuration error: {e}")
+        console.print(f"[red]Configuration error:[/red] {e}", file=sys.stderr)
+        raise click.Abort()
+    except AuthenticationError as e:
+        logger.error(f"Authentication error: {e}")
+        console.print(
+            "[red]Authentication failed.[/red] Check credentials in .mise.local.toml",
+            file=sys.stderr
+        )
+        raise click.Abort()
+    except (HomeNotFoundError, RoomNotFoundError) as e:
+        logger.error(f"Resource not found: {e}")
+        console.print(f"[red]Not found:[/red] {e}", file=sys.stderr)
+        raise click.Abort()
+    except ApiError as e:
+        logger.error(f"API error: {e}")
+        console.print(f"[red]API error:[/red] {e}", file=sys.stderr)
+        raise click.Abort()
+    except NetatmoError as e:
+        logger.error(f"Netatmo error: {e}")
+        console.print(f"[red]Netatmo error:[/red] {e}", file=sys.stderr)
+        raise click.Abort()
+    except Exception as e:
+        logger.error(f"Unexpected error: {e}")
+        console.print(f"[red]Unexpected error:[/red] {e}", file=sys.stderr)
+        raise click.Abort()
+
+
+@cli.command(name="set-temperature")
 @click.option("--room-id", required=True, help="Room ID to set temperature for")
 @click.option(
     "--temperature", type=float, required=True, help="Corrected temperature value"
@@ -101,34 +184,53 @@ def create_netatmo_api() -> NetatmoAPI:
 @click.option(
     "--home-id", default=None, help="Home ID (optional, uses default if not provided)"
 )
-def main(room_id: str, temperature: float, home_id: str | None = None):
+def set_temperature(room_id: str, temperature: float, home_id: str | None = None):
     """Sets calibrated temperature for a Netatmo room.
 
     Example:
-        python netatmo.py --room-id 2631283693 --temperature 20.5
+        python cli.py set-temperature --room-id 2631283693 --temperature 20.5
     """
     try:
-        # Create API client (Dependency Inversion)
         api = create_netatmo_api()
-
-        # Create service with injected API (Dependency Inversion)
         service = NetatmoService(api)
 
-        # Execute operation
         service.set_room_temperature(
             room_id=room_id, corrected_temperature=temperature, home_id=home_id
         )
-        click.echo(f"Successfully set temperature to {temperature}°C")
+        console.print(f"[green]✓[/green] Successfully set temperature to {temperature}°C")
 
     except ValueError as e:
         logger.error(f"Configuration error: {e}")
-        click.echo(f"Error: {e}", err=True)
+        console.print(f"[red]Configuration error:[/red] {e}", file=sys.stderr)
+        raise click.Abort()
+    except ValidationError as e:
+        logger.error(f"Validation error: {e}")
+        console.print(f"[red]Validation error:[/red] {e}", file=sys.stderr)
+        raise click.Abort()
+    except AuthenticationError as e:
+        logger.error(f"Authentication error: {e}")
+        console.print(
+            "[red]Authentication failed.[/red] Check credentials in .mise.local.toml",
+            file=sys.stderr
+        )
+        raise click.Abort()
+    except (HomeNotFoundError, RoomNotFoundError) as e:
+        logger.error(f"Resource not found: {e}")
+        console.print(f"[red]Not found:[/red] {e}", file=sys.stderr)
+        raise click.Abort()
+    except ApiError as e:
+        logger.error(f"API error: {e}")
+        console.print(f"[red]API error:[/red] {e}", file=sys.stderr)
+        raise click.Abort()
+    except NetatmoError as e:
+        logger.error(f"Netatmo error: {e}")
+        console.print(f"[red]Netatmo error:[/red] {e}", file=sys.stderr)
         raise click.Abort()
     except Exception as e:
         logger.error(f"Unexpected error: {e}")
-        click.echo(f"Error: {e}", err=True)
+        console.print(f"[red]Unexpected error:[/red] {e}", file=sys.stderr)
         raise click.Abort()
 
 
 if __name__ == "__main__":
-    main()
+    cli()

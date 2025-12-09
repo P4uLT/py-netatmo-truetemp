@@ -4,7 +4,7 @@ from typing import Any
 
 from .api_client import NetatmoApiClient
 from .constants import ApiEndpoints
-from .exceptions import RoomNotFoundError
+from .exceptions import ApiError, RoomNotFoundError
 from .home_service import HomeService
 from .logger import setup_logger
 from .validators import (
@@ -34,6 +34,76 @@ class ThermostatService:
             return room_id
         except (KeyError, IndexError):
             return room_id
+
+    def list_rooms_with_thermostats(
+        self, home_id: str | None = None
+    ) -> list[dict[str, str]]:
+        """Lists all rooms with active thermostats in a home.
+
+        **API Calls:** Makes 2 API requests (homesdata + homestatus)
+
+        Fetches both home data (for room names) and home status (for thermostat
+        detection). A room is considered to have a thermostat if the
+        'therm_measured_temperature' field is present and valid in the status response.
+
+        Args:
+            home_id: Home ID to query. If None, uses the default home.
+
+        Returns:
+            List of rooms with id and name, filtered to rooms with active thermostats
+
+        Raises:
+            ValidationError: If home_id is invalid
+            HomeNotFoundError: If home not found
+            ApiError: If the API request fails or returns malformed data
+        """
+        if home_id is not None:
+            validate_home_id(home_id)
+
+        if home_id is None:
+            home_id = self.home_service.get_default_home_id()
+
+        homes_data = self.home_service.get_homes_data(home_id=home_id)
+        status_response = self.home_service.get_home_status(home_id=home_id)
+
+        try:
+            room_names: dict[str, str] = {}
+            for home in homes_data["body"]["homes"]:
+                if str(home["id"]) == str(home_id):
+                    for room in home.get("rooms", []):
+                        room_id_str = str(room["id"])
+                        room_names[room_id_str] = room.get("name") or f"Room {room_id_str}"
+                    break
+
+            home = status_response["body"]["home"]
+            rooms = home["rooms"]
+
+            if not rooms:
+                logger.info(f"No rooms found in home {home_id}")
+                return []
+
+            rooms_with_thermostats = []
+            for room in rooms:
+                try:
+                    room_id = str(room["id"])
+                    temp_value = room.get("therm_measured_temperature")
+
+                    if temp_value is not None and isinstance(temp_value, (int, float)):
+                        room_name = room_names.get(room_id, f"Room {room_id}")
+                        rooms_with_thermostats.append({"id": room_id, "name": room_name})
+                except (KeyError, TypeError) as e:
+                    logger.warning(f"Skipping room with missing required field: {e}")
+                    continue
+
+            logger.info(
+                f"Found {len(rooms_with_thermostats)}/{len(rooms)} rooms "
+                f"with thermostats in home {home_id}"
+            )
+            return rooms_with_thermostats
+
+        except (KeyError, IndexError) as e:
+            logger.error(f"Malformed API response structure: {e}")
+            raise ApiError(f"Failed to parse API response: {e}") from e
 
     def set_room_temperature(
         self, room_id: str, corrected_temperature: float, home_id: str | None = None

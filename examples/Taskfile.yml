@@ -4,38 +4,43 @@ vars:
   NETATMO_CMD: uv run python cli.py
 
 tasks:
+  list-rooms:
+    desc: List all rooms with thermostats
+    cmds:
+      - "{{.NETATMO_CMD}} list-rooms"
+
   bureau:
     desc: Set temperature for Bureau
     cmds:
-      - "{{.NETATMO_CMD}} --room-id {{.BUREAU_ID}} --temperature {{.TEMP}}"
+      - "{{.NETATMO_CMD}} set-temperature --room-id {{.BUREAU_ID}} --temperature {{.TEMP}}"
     requires:
       vars: [TEMP]
 
   salle-a-manger:
     desc: Set temperature for Salle à manger
     cmds:
-      - "{{.NETATMO_CMD}} --room-id {{.SALLE_A_MANGER_ID}} --temperature {{.TEMP}}"
+      - "{{.NETATMO_CMD}} set-temperature --room-id {{.SALLE_A_MANGER_ID}} --temperature {{.TEMP}}"
     requires:
       vars: [TEMP]
 
   chambre-liam:
     desc: Set temperature for Chambre Liam
     cmds:
-      - "{{.NETATMO_CMD}} --room-id {{.CHAMBRE_LIAM_ID}} --temperature {{.TEMP}}"
+      - "{{.NETATMO_CMD}} set-temperature --room-id {{.CHAMBRE_LIAM_ID}} --temperature {{.TEMP}}"
     requires:
       vars: [TEMP]
 
   couloir:
     desc: Set temperature for Couloir
     cmds:
-      - "{{.NETATMO_CMD}} --room-id {{.COULOIR_ID}} --temperature {{.TEMP}}"
+      - "{{.NETATMO_CMD}} set-temperature --room-id {{.COULOIR_ID}} --temperature {{.TEMP}}"
     requires:
       vars: [TEMP]
 
   set-temp:
     desc: Set temperature for a custom room
     cmds:
-      - "{{.NETATMO_CMD}} --room-id {{.ROOM_ID}} --temperature {{.TEMP}}"
+      - "{{.NETATMO_CMD}} set-temperature --room-id {{.ROOM_ID}} --temperature {{.TEMP}}"
     requires:
       vars: [ROOM_ID, TEMP]
 

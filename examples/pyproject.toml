@@ -7,6 +7,7 @@ requires-python = ">=3.13"
 dependencies = [
     "py-netatmo-truetemp",
     "click>=8.1.8",
+    "rich>=14.2.0",
 ]
 
 [tool.uv.sources]
