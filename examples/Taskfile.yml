@@ -8,43 +8,49 @@ tasks:
     desc: List all rooms with thermostats
     cmds:
       - "{{.NETATMO_CMD}} list-rooms"
+    aliases: [ls, rooms]
+
+  set-temp:
+    desc: Set temperature for a room by name (e.g., task set-temp ROOM="Bureau" TEMP=20.5)
+    prompt: Set {{.ROOM}} to {{.TEMP}}°C?
+    cmds:
+      - "{{.NETATMO_CMD}} set-temperature --room-name '{{.ROOM}}' --temperature {{.TEMP}}"
+    requires:
+      vars: [ROOM, TEMP]
 
   bureau:
     desc: Set temperature for Bureau
     cmds:
-      - "{{.NETATMO_CMD}} set-temperature --room-id {{.BUREAU_ID}} --temperature {{.TEMP}}"
-    requires:
-      vars: [TEMP]
+      - task: set-temp
+        vars:
+          ROOM: Bureau
+          TEMP: "{{.TEMP}}"
 
   salle-a-manger:
     desc: Set temperature for Salle à manger
     cmds:
-      - "{{.NETATMO_CMD}} set-temperature --room-id {{.SALLE_A_MANGER_ID}} --temperature {{.TEMP}}"
-    requires:
-      vars: [TEMP]
+      - task: set-temp
+        vars:
+          ROOM: Salle à manger
+          TEMP: "{{.TEMP}}"
 
   chambre-liam:
     desc: Set temperature for Chambre Liam
     cmds:
-      - "{{.NETATMO_CMD}} set-temperature --room-id {{.CHAMBRE_LIAM_ID}} --temperature {{.TEMP}}"
-    requires:
-      vars: [TEMP]
+      - task: set-temp
+        vars:
+          ROOM: Chambre Liam
+          TEMP: "{{.TEMP}}"
 
   couloir:
     desc: Set temperature for Couloir
     cmds:
-      - "{{.NETATMO_CMD}} set-temperature --room-id {{.COULOIR_ID}} --temperature {{.TEMP}}"
-    requires:
-      vars: [TEMP]
-
-  set-temp:
-    desc: Set temperature for a custom room
-    cmds:
-      - "{{.NETATMO_CMD}} set-temperature --room-id {{.ROOM_ID}} --temperature {{.TEMP}}"
-    requires:
-      vars: [ROOM_ID, TEMP]
+      - task: set-temp
+        vars:
+          ROOM: Couloir
+          TEMP: "{{.TEMP}}"
 
   list:
-    desc: List all available room tasks
+    desc: List all available tasks
     cmds:
-      - task --list
+      - task --list-all

@@ -177,22 +177,46 @@ def list_rooms(home_id: str | None = None):
 
 
 @cli.command(name="set-temperature")
-@click.option("--room-id", required=True, help="Room ID to set temperature for")
+@click.option("--room-id", default=None, help="Room ID to set temperature for")
+@click.option("--room-name", default=None, help="Room name to set temperature for (alternative to --room-id)")
 @click.option(
     "--temperature", type=float, required=True, help="Corrected temperature value"
 )
 @click.option(
     "--home-id", default=None, help="Home ID (optional, uses default if not provided)"
 )
-def set_temperature(room_id: str, temperature: float, home_id: str | None = None):
+def set_temperature(room_id: str | None, room_name: str | None, temperature: float, home_id: str | None = None):
     """Sets calibrated temperature for a Netatmo room.
 
     Example:
         python cli.py set-temperature --room-id 2631283693 --temperature 20.5
+        python cli.py set-temperature --room-name "Bureau" --temperature 20.5
     """
     try:
+        if not room_id and not room_name:
+            console.print("[red]Error:[/red] Either --room-id or --room-name must be provided", file=sys.stderr)
+            raise click.Abort()
+
+        if room_id and room_name:
+            console.print("[red]Error:[/red] Cannot use both --room-id and --room-name", file=sys.stderr)
+            raise click.Abort()
+
         api = create_netatmo_api()
         service = NetatmoService(api)
+
+        if room_name:
+            rooms = service.list_thermostat_rooms(home_id=home_id)
+            matching_rooms = [r for r in rooms if r['name'].lower() == room_name.lower()]
+
+            if not matching_rooms:
+                console.print(f"[red]Error:[/red] Room '{room_name}' not found", file=sys.stderr)
+                raise click.Abort()
+
+            if len(matching_rooms) > 1:
+                console.print(f"[yellow]Warning:[/yellow] Multiple rooms named '{room_name}' found, using first match")
+
+            room_id = matching_rooms[0]['id']
+            logger.info(f"Found room: {room_name} (ID: {room_id})")
 
         service.set_room_temperature(
             room_id=room_id, corrected_temperature=temperature, home_id=home_id
