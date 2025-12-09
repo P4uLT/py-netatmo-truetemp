@@ -91,11 +91,15 @@ task list
 ### Method 2: Direct CLI Execution
 
 ```bash
-uv run python cli.py --room-id <room_id> --temperature <temp>
+# List all rooms with thermostats
+uv run python cli.py list-rooms
 
-# Examples
-uv run python cli.py --room-id 2631283693 --temperature 20.5
-uv run python cli.py --room-id 2631283693 --temperature 19.0
+# Set temperature by room ID
+uv run python cli.py set-temperature --room-id 2631283693 --temperature 20.5
+
+# Set temperature by room name (case-insensitive)
+uv run python cli.py set-temperature --room-name "Bureau" --temperature 20.5
+uv run python cli.py set-temperature --room-name "bureau" --temperature 19.0
 ```
 
 ## Development Workflow
@@ -115,8 +119,8 @@ task bureau TEMP=20.5
 ### Validation
 
 ```bash
-# Syntax check CLI
-python -m py_compile cli.py
+# Syntax check all CLI modules
+python -m py_compile cli.py helpers.py display.py
 
 # Syntax check library
 python -m py_compile ../src/py_netatmo_truetemp/*.py
@@ -147,36 +151,61 @@ uv run python monitor.py
 
 ## CLI Architecture
 
-The CLI demonstrates best practices for using the library:
+The CLI demonstrates best practices for using the library with a clean, modular architecture:
+
+### Module Organization
+
+**`cli.py`** - Application entry point:
+- Click command group definition (`list-rooms`, `set-temperature`)
+- Command routing and parameter handling
+- Delegates to helper and display modules
+
+**`helpers.py`** - Business logic and API operations:
+- `NetatmoConfig.from_environment()` - Loads credentials from environment
+- `create_netatmo_api_with_spinner()` - Initializes API with loading indicator
+- `handle_api_errors()` - Decorator for consistent error handling across commands
+- `resolve_room_id()` - Resolves room name to ID (supports case-insensitive lookup)
+- `validate_room_input()` - Validates mutual exclusivity of room-id/room-name
+
+**`display.py`** - Presentation layer (Rich library):
+- `display_rooms_table()` - Formatted table with room list
+- `display_temperature_result()` - Success message for temperature changes
+- `display_error_panel()` - Styled error panels with red borders
 
 ### Click Framework
 
 - Type-safe command-line arguments
 - Automatic help generation (`--help`)
 - Built-in input validation
+- Command groups and aliases
 
 ### Library Integration Pattern
 
 ```python
-# cli.py shows simple library usage
+# Modular pattern from helpers.py and cli.py
 from py_netatmo_truetemp import NetatmoAPI
 import os
 
-# Initialize with environment variables
-api = NetatmoAPI(
-    username=os.environ["NETATMO_USERNAME"],
-    password=os.environ["NETATMO_PASSWORD"]
-)
+# Initialize with environment variables (via helper)
+api = create_netatmo_api_with_spinner()
 
-# Single method call for operations
-api.set_truetemperature(room_id=room_id, temperature=temperature)
+# List rooms with thermostats
+rooms = api.list_thermostat_rooms()
+
+# Set temperature by room name (dynamic lookup)
+resolved_id, resolved_name = resolve_room_id(api, None, "Bureau", None)
+api.set_truetemperature(
+    room_id=resolved_id,
+    corrected_temperature=20.5
+)
 ```
 
 ### Error Handling
 
-- Catches library exceptions (`NetatmoError`, `AuthenticationError`, etc.)
-- Provides user-friendly error messages
-- Exits with appropriate status codes
+- Decorator-based error handling (`@handle_api_errors`)
+- Catches all library exceptions (`NetatmoError`, `AuthenticationError`, `ValidationError`, etc.)
+- Rich-formatted error panels with descriptive messages
+- Exits with appropriate status codes (via `click.Abort()`)
 
 ## Configuration Files
 
@@ -189,6 +218,7 @@ name = "netatmo-cli-examples"
 dependencies = [
     "py-netatmo-truetemp",  # Parent library (editable)
     "click>=8.1.8",         # CLI framework
+    "rich>=14.2.0",         # Terminal formatting (tables, panels, colors)
 ]
 
 [tool.uv.sources]
@@ -244,11 +274,13 @@ For library-level issues (authentication, API errors, architecture questions), s
 # Add new dependency to examples
 uv add <package-name>
 
-# Example: Add tabulate for formatted output
+# Example: Add another formatting library
 uv add tabulate
 ```
 
-**Note**: Parent library dependencies (requests, platformdirs) are automatically available.
+**Note**: Parent library dependencies (requests, platformdirs) are automatically available. The CLI already includes:
+- `click>=8.1.8` - CLI framework
+- `rich>=14.2.0` - Terminal formatting (tables, panels, spinners)
 
 ## Best Practices
 

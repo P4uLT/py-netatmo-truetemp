@@ -52,11 +52,12 @@ Infrastructure Layer (NetatmoApiClient, AuthenticationManager, CookieStore)
 
 2. **Single Responsibility**: Each component has exactly one reason to change:
    - `CookieStore`: Cookie persistence (JSON with 0o600 permissions)
-   - `AuthenticationManager`: Authentication flow and token caching
+   - `AuthenticationManager`: Authentication flow and token caching (thread-safe with locking)
    - `NetatmoApiClient`: HTTP client with automatic retry
    - `HomeService`: Home operations (data, status)
-   - `ThermostatService`: Room temperature control
+   - `ThermostatService`: Room temperature control and room listing
    - `NetatmoAPI`: Facade coordinating all services
+   - `types.py`: TypedDict definitions for type-safe API responses
    - `validators.py`: Input validation
    - `exceptions.py`: Custom exceptions
    - `constants.py`: API endpoints and constants
@@ -94,10 +95,13 @@ Lazy and cached:
 
 ### Type Safety
 
-Uses modern Python 3.10+ syntax:
+Uses modern Python 3.13+ syntax with comprehensive type definitions:
 - `Type | None` (not `Optional[Type]`)
 - `dict[K, V]`, `list[T]` (not `Dict`, `List`)
 - Return types required for all public methods
+- `TypedDict` definitions in `types.py` for all API responses (`HomesDataResponse`, `HomeStatusResponse`, `TrueTemperatureResponse`, etc.)
+- Type aliases for common patterns (`ResponseStatus = Literal["ok", "failed"]`)
+- Thread-safe session management with locking in `AuthenticationManager`
 
 ## Key Features
 
@@ -160,6 +164,7 @@ src/py_netatmo_truetemp/    # Installable library package
 ├── api_client.py           # HTTP + retry
 ├── home_service.py         # Home operations
 ├── thermostat_service.py   # Temperature control
+├── types.py                # TypedDict definitions for API responses
 ├── validators.py           # Input validation
 ├── exceptions.py           # Custom exceptions
 ├── constants.py            # API endpoints
@@ -169,8 +174,10 @@ src/py_netatmo_truetemp/    # Installable library package
 ### Examples (Independent Applications)
 ```
 examples/                   # Independent examples folder
-├── cli.py                  # CLI application
-├── pyproject.toml          # Examples dependencies
+├── cli.py                  # CLI application entry point
+├── helpers.py              # Helper functions (API initialization, error handling, validation)
+├── display.py              # Display formatting with Rich library
+├── pyproject.toml          # Examples dependencies (Click, Rich)
 ├── .mise.local.toml        # Environment configuration
 ├── Taskfile.yml            # Task runner configuration
 ├── .venv/                  # Isolated virtual environment
@@ -192,7 +199,8 @@ examples/                   # Independent examples folder
 
 **Type Safety**:
 - Return types required for all public methods
-- Use modern Python 3.10+ type hints (`Type | None`, `dict[K, V]`, `list[T]`)
+- Use modern Python 3.13+ type hints (`Type | None`, `dict[K, V]`, `list[T]`)
+- TypedDict for structured API responses
 
 **Testing**:
 - Test library changes using example applications
@@ -214,11 +222,18 @@ api = NetatmoAPI(
 # Get homes data
 homes = api.homesdata()
 
-# Set room temperature
-api.set_truetemperature(room_id="2631283693", temperature=20.5)
-
 # Get home status
-status = api.get_home_status(home_id="your-home-id")
+status = api.homestatus(home_id="your-home-id")
+
+# List rooms with thermostats
+rooms = api.list_thermostat_rooms()
+# Returns: [{'id': '2631283693', 'name': 'Bureau'}, ...]
+
+# Set room temperature (supports smart updates with 0.1°C tolerance)
+api.set_truetemperature(
+    room_id="2631283693",
+    corrected_temperature=20.5
+)
 ```
 
 ### Advanced Usage
