@@ -14,7 +14,7 @@ tasks:
     desc: Set temperature for a room by name (e.g., task set-temp ROOM="Bureau" TEMP=20.5)
     prompt: Set {{.ROOM}} to {{.TEMP}}°C?
     cmds:
-      - "{{.NETATMO_CMD}} set-temperature --room-name '{{.ROOM}}' --temperature {{.TEMP}}"
+      - "{{.NETATMO_CMD}} set-truetemperature --room-name '{{.ROOM}}' --temperature {{.TEMP}}"
     requires:
       vars: [ROOM, TEMP]
 

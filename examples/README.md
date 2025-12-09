@@ -55,13 +55,13 @@ uv run python cli.py list-rooms
 
 **Set temperature by room ID:**
 ```bash
-uv run python cli.py set-temperature --room-id 2631283693 --temperature 20.5
+uv run python cli.py set-truetemperature --room-id 2631283693 --temperature 20.5
 ```
 
 **Set temperature by room name (case-insensitive):**
 ```bash
-uv run python cli.py set-temperature --room-name "Bureau" --temperature 20.5
-uv run python cli.py set-temperature --room-name "bureau" --temperature 19.0
+uv run python cli.py set-truetemperature --room-name "Bureau" --temperature 20.5
+uv run python cli.py set-truetemperature --room-name "bureau" --temperature 19.0
 ```
 
 ### Method 2: Using Task Runner

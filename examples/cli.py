@@ -21,7 +21,7 @@ def cli():
 
     Examples:
         python cli.py list-rooms
-        python cli.py set-temperature --room-name "Bureau" --temperature 20.5
+        python cli.py set-truetemperature --room-name "Bureau" --temperature 20.5
     """
     pass
 
@@ -43,7 +43,7 @@ def list_rooms(home_id: str | None = None):
     display_rooms_table(rooms)
 
 
-@cli.command(name="set-temperature")
+@cli.command(name="set-truetemperature")
 @click.option("--room-id", default=None, help="Room ID to set temperature for")
 @click.option(
     "--room-name",
@@ -57,7 +57,7 @@ def list_rooms(home_id: str | None = None):
     "--home-id", default=None, help="Home ID (optional, uses default if not provided)"
 )
 @handle_api_errors
-def set_temperature(
+def set_truetemperature(
     room_id: str | None,
     room_name: str | None,
     temperature: float,
@@ -66,8 +66,8 @@ def set_temperature(
     """Sets calibrated temperature for a Netatmo room.
 
     Example:
-        python cli.py set-temperature --room-id 2631283693 --temperature 20.5
-        python cli.py set-temperature --room-name "Bureau" --temperature 20.5
+        python cli.py set-truetemperature --room-id 2631283693 --temperature 20.5
+        python cli.py set-truetemperature --room-name "Bureau" --temperature 20.5
     """
     validate_room_input(room_id, room_name)
 

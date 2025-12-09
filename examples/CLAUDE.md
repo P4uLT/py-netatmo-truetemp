@@ -95,11 +95,11 @@ task list
 uv run python cli.py list-rooms
 
 # Set temperature by room ID
-uv run python cli.py set-temperature --room-id 2631283693 --temperature 20.5
+uv run python cli.py set-truetemperature --room-id 2631283693 --temperature 20.5
 
 # Set temperature by room name (case-insensitive)
-uv run python cli.py set-temperature --room-name "Bureau" --temperature 20.5
-uv run python cli.py set-temperature --room-name "bureau" --temperature 19.0
+uv run python cli.py set-truetemperature --room-name "Bureau" --temperature 20.5
+uv run python cli.py set-truetemperature --room-name "bureau" --temperature 19.0
 ```
 
 ## Development Workflow
@@ -156,7 +156,7 @@ The CLI demonstrates best practices for using the library with a clean, modular 
 ### Module Organization
 
 **`cli.py`** - Application entry point:
-- Click command group definition (`list-rooms`, `set-temperature`)
+- Click command group definition (`list-rooms`, `set-truetemperature`)
 - Command routing and parameter handling
 - Delegates to helper and display modules
 
