@@ -178,8 +178,6 @@ examples/                   # Independent examples folder
 ├── helpers.py              # Helper functions (API initialization, error handling, validation)
 ├── display.py              # Display formatting with Rich library
 ├── pyproject.toml          # Examples dependencies (Click, Rich)
-├── .mise.local.toml        # Environment configuration
-├── Taskfile.yml            # Task runner configuration
 ├── .venv/                  # Isolated virtual environment
 └── CLAUDE.md               # Examples-specific documentation
 ```
@@ -227,11 +225,11 @@ status = api.homestatus(home_id="your-home-id")
 
 # List rooms with thermostats
 rooms = api.list_thermostat_rooms()
-# Returns: [{'id': '2631283693', 'name': 'Bureau'}, ...]
+# Returns: [{'id': '1234567890', 'name': 'Living Room'}, ...]
 
 # Set room temperature (supports smart updates with 0.1°C tolerance)
 api.set_truetemperature(
-    room_id="2631283693",
+    room_id="1234567890",
     corrected_temperature=20.5
 )
 ```

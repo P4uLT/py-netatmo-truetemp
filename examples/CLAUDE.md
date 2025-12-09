@@ -29,8 +29,6 @@ py-netatmo-truetemp = { path = "..", editable = true }
 This folder has its own isolated setup:
 - `pyproject.toml` - CLI dependencies (parent library + Click)
 - `.venv/` - Isolated virtual environment
-- `.mise.local.toml` - Environment variables and credentials
-- `Taskfile.yml` - Pre-configured task shortcuts
 
 ## Setup Instructions
 
@@ -49,57 +47,28 @@ uv sync        # Installs parent library (editable) + Click + dependencies
 
 ### 3. Configure Environment Variables
 
-Create/edit `.mise.local.toml` with your Netatmo credentials:
-
-```toml
-[env]
-NETATMO_USERNAME = "your.email@example.com"
-NETATMO_PASSWORD = "your-password"
-NETATMO_HOME_ID = "your-home-id"  # Optional, auto-detected if omitted
-
-# Optional: Room IDs for task shortcuts
-BUREAU_ID = "2631283693"
-SALLE_A_MANGER_ID = "123456789"
-CHAMBRE_LIAM_ID = "987654321"
-COULOIR_ID = "555555555"
-```
-
-**Security**: `.mise.local.toml` is git-ignored. Never commit credentials.
-
-## CLI Usage
-
-### Method 1: Task Runner (Recommended)
-
-Pre-configured shortcuts in `Taskfile.yml`:
+Set your Netatmo credentials as environment variables:
 
 ```bash
-# Room-specific shortcuts (requires room IDs in .mise.local.toml)
-task bureau TEMP=20.5
-task salle-a-manger TEMP=21.0
-task chambre-liam TEMP=19.3
-task couloir TEMP=18.5
-
-# Generic command for any room
-task set-temp ROOM_ID=2631283693 TEMP=20.0
-
-# List all available tasks
-task list
+export NETATMO_USERNAME="your.email@example.com"
+export NETATMO_PASSWORD="your-password"
+export NETATMO_HOME_ID="your-home-id"  # Optional, auto-detected if omitted
 ```
 
-**Note**: Room shortcuts require environment variables like `BUREAU_ID`, `SALLE_A_MANGER_ID` in `.mise.local.toml`.
+**Security**: Never commit credentials to version control.
 
-### Method 2: Direct CLI Execution
+## CLI Usage
 
 ```bash
 # List all rooms with thermostats
 uv run python cli.py list-rooms
 
 # Set temperature by room ID
-uv run python cli.py set-truetemperature --room-id 2631283693 --temperature 20.5
+uv run python cli.py set-truetemperature --room-id 1234567890 --temperature 20.5
 
 # Set temperature by room name (case-insensitive)
-uv run python cli.py set-truetemperature --room-name "Bureau" --temperature 20.5
-uv run python cli.py set-truetemperature --room-name "bureau" --temperature 19.0
+uv run python cli.py set-truetemperature --room-name "Living Room" --temperature 20.5
+uv run python cli.py set-truetemperature --room-name "living room" --temperature 19.0
 ```
 
 ## Development Workflow
@@ -113,7 +82,7 @@ The editable install means library changes are immediately available:
 vim ../src/py_netatmo_truetemp/thermostat_service.py
 
 # 2. Test immediately (no reinstall needed)
-task bureau TEMP=20.5
+uv run python cli.py set-truetemperature --room-name "Living Room" --temperature 20.5
 ```
 
 ### Validation
@@ -193,7 +162,7 @@ api = create_netatmo_api_with_spinner()
 rooms = api.list_thermostat_rooms()
 
 # Set temperature by room name (dynamic lookup)
-resolved_id, resolved_name = resolve_room_id(api, None, "Bureau", None)
+resolved_id, resolved_name = resolve_room_id(api, None, "Living Room", None)
 api.set_truetemperature(
     room_id=resolved_id,
     corrected_temperature=20.5
@@ -225,19 +194,11 @@ dependencies = [
 py-netatmo-truetemp = { path = "..", editable = true }
 ```
 
-### .mise.local.toml
+### Environment Variables
 
-Environment configuration (git-ignored):
+Required environment variables:
 - **Credentials**: `NETATMO_USERNAME`, `NETATMO_PASSWORD`
 - **Optional**: `NETATMO_HOME_ID`
-- **Room IDs**: `BUREAU_ID`, `SALLE_A_MANGER_ID`, etc. (for task shortcuts)
-
-### Taskfile.yml
-
-Task runner shortcuts:
-- Room-specific commands (`task bureau`, `task salle-a-manger`)
-- Generic command (`task set-temp`)
-- Reads environment variables from `.mise.local.toml`
 
 ## Troubleshooting
 
@@ -248,13 +209,9 @@ Task runner shortcuts:
 - Verify parent library installed: `uv pip list | grep netatmo`
 
 **Authentication failures**:
-- Check credentials in `.mise.local.toml`
-- Verify environment variables loaded: `env | grep NETATMO`
+- Check environment variables are set: `env | grep NETATMO`
+- Verify credentials are correct
 - Delete cached cookies (see `../CLAUDE.md` for paths)
-
-**Task not found**:
-- Verify room ID variables set in `.mise.local.toml`
-- Run `task list` to see available tasks
 
 **Library changes not reflected**:
 - Editable install works automatically

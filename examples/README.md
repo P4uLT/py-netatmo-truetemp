@@ -29,24 +29,17 @@ uv sync
 
 ### 3. Configure Environment
 
-Edit `.mise.local.toml` with your Netatmo credentials:
+Set your Netatmo credentials as environment variables:
 
-```toml
-[env]
-NETATMO_USERNAME = "your.email@example.com"
-NETATMO_PASSWORD = "your-password"
-NETATMO_HOME_ID = "your-home-id"  # Optional, auto-detected if omitted
-
-# Optional: Room IDs for task shortcuts
-BUREAU_ID = "2631283693"
-SALLE_A_MANGER_ID = "123456789"
-CHAMBRE_LIAM_ID = "987654321"
-COULOIR_ID = "555555555"
+```bash
+export NETATMO_USERNAME="your.email@example.com"
+export NETATMO_PASSWORD="your-password"
+export NETATMO_HOME_ID="your-home-id"  # Optional, auto-detected if omitted
 ```
 
 ## Usage
 
-### Method 1: Direct CLI Execution
+### CLI Usage
 
 **List all rooms with thermostats:**
 ```bash
@@ -55,34 +48,14 @@ uv run python cli.py list-rooms
 
 **Set temperature by room ID:**
 ```bash
-uv run python cli.py set-truetemperature --room-id 2631283693 --temperature 20.5
+uv run python cli.py set-truetemperature --room-id 1234567890 --temperature 20.5
 ```
 
 **Set temperature by room name (case-insensitive):**
 ```bash
-uv run python cli.py set-truetemperature --room-name "Bureau" --temperature 20.5
-uv run python cli.py set-truetemperature --room-name "bureau" --temperature 19.0
+uv run python cli.py set-truetemperature --room-name "Living Room" --temperature 20.5
+uv run python cli.py set-truetemperature --room-name "living room" --temperature 19.0
 ```
-
-### Method 2: Using Task Runner
-
-Pre-configured tasks are available via [Task](https://taskfile.dev):
-
-```bash
-# Room-specific shortcuts (requires room IDs in .mise.local.toml)
-task bureau TEMP=20.5
-task salle-a-manger TEMP=21.0
-task chambre-liam TEMP=19.3
-task couloir TEMP=18.5
-
-# Generic command for any room
-task set-temp ROOM_ID=2631283693 TEMP=20.0
-
-# List all available tasks
-task list
-```
-
-**Note**: Room shortcuts require environment variables like `BUREAU_ID`, `SALLE_A_MANGER_ID` in `.mise.local.toml`.
 
 ## Architecture
 
@@ -140,7 +113,5 @@ python -m py_compile ../src/py_netatmo_truetemp/*.py
 - `helpers.py` - Helper functions (API init, error handling, validation)
 - `display.py` - Display formatting with Rich library
 - `pyproject.toml` - Example dependencies (Click, Rich)
-- `.mise.local.toml` - Environment variables for Netatmo API
-- `Taskfile.yml` - Task runner configuration for common operations
 - `README.md` - This file
 - `CLAUDE.md` - Detailed development workflow and architecture guide

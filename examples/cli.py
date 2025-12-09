@@ -21,7 +21,7 @@ def cli():
 
     Examples:
         python cli.py list-rooms
-        python cli.py set-truetemperature --room-name "Bureau" --temperature 20.5
+        python cli.py set-truetemperature --room-name "Living Room" --temperature 20.5
     """
     pass
 
@@ -66,8 +66,8 @@ def set_truetemperature(
     """Sets calibrated temperature for a Netatmo room.
 
     Example:
-        python cli.py set-truetemperature --room-id 2631283693 --temperature 20.5
-        python cli.py set-truetemperature --room-name "Bureau" --temperature 20.5
+        python cli.py set-truetemperature --room-id 1234567890 --temperature 20.5
+        python cli.py set-truetemperature --room-name "Living Room" --temperature 20.5
     """
     validate_room_input(room_id, room_name)
 
