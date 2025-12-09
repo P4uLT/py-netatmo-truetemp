@@ -1,12 +1,12 @@
 """Thermostat operations and temperature control."""
 
-from typing import Any
 
 from .api_client import NetatmoApiClient
 from .constants import ApiEndpoints
 from .exceptions import ApiError, RoomNotFoundError
 from .home_service import HomeService
 from .logger import setup_logger
+from .types import TrueTemperatureResponse
 from .validators import (
     validate_home_id,
     validate_room_id,
@@ -107,7 +107,7 @@ class ThermostatService:
 
     def set_room_temperature(
         self, room_id: str, corrected_temperature: float, home_id: str | None = None
-    ) -> dict[str, Any]:
+    ) -> TrueTemperatureResponse:
         """Sets calibrated temperature for a room.
 
         Raises:

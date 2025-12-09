@@ -3,7 +3,6 @@
 import json
 import threading
 import time
-from typing import Any
 
 import requests
 
@@ -32,6 +31,7 @@ class AuthenticationManager:
         self._token: str | None = None
         self._token_obtained_at: float | None = None
         self._token_lock = threading.Lock()
+        self._session_lock = threading.Lock()
 
     def get_auth_headers(self) -> dict[str, str]:
         """Returns authentication headers with Bearer token.
@@ -106,40 +106,38 @@ class AuthenticationManager:
         if not cookies:
             return None
 
-        # Restore cookies to session
-        for name, value in cookies.items():
-            self.session.cookies.set(name, value, domain=".netatmo.com")
+        with self._session_lock:
+            # Restore cookies to session
+            for name, value in cookies.items():
+                self.session.cookies.set(name, value, domain=".netatmo.com")
 
-        # Validate session
-        try:
-            response = self.session.get(f"{ApiEndpoints.AUTH_BASE}{ApiEndpoints.CSRF}")
-            if response.status_code != 200:
-                logger.info("Cached session is invalid")
+            # Validate session
+            try:
+                response = self.session.get(f"{ApiEndpoints.AUTH_BASE}{ApiEndpoints.CSRF}")
+                if response.status_code != 200:
+                    logger.info("Cached session is invalid")
+                    self.cookie_store.clear()
+                    return None
+
+                headers = self._extract_headers_from_cookies()
+                test_response = self.session.get(
+                    f"{ApiEndpoints.AUTH_BASE}{ApiEndpoints.CSRF}", headers=headers
+                )
+                if test_response.status_code == 200:
+                    logger.info("Using cached session credentials")
+                    return headers
+                else:
+                    self.cookie_store.clear()
+                    return None
+
+            except requests.exceptions.RequestException as e:
+                logger.warning(f"Network error validating cached session: {e}")
                 self.cookie_store.clear()
                 return None
-
-            headers = self._extract_headers_from_cookies()
-            # Verify headers work by accessing the authentication CSRF endpoint
-            # We use the AUTH endpoint to validate the session is still active
-            # The actual API validation happens when the token is used by NetatmoApiClient
-            test_response = self.session.get(
-                f"{ApiEndpoints.AUTH_BASE}{ApiEndpoints.CSRF}", headers=headers
-            )
-            if test_response.status_code == 200:
-                logger.info("Using cached session credentials")
-                return headers
-            else:
+            except Exception as e:
+                logger.warning(f"Error validating cached session: {e}")
                 self.cookie_store.clear()
                 return None
-
-        except requests.exceptions.RequestException as e:
-            logger.warning(f"Network error validating cached session: {e}")
-            self.cookie_store.clear()
-            return None
-        except Exception as e:
-            logger.warning(f"Error validating cached session: {e}")
-            self.cookie_store.clear()
-            return None
 
     def _perform_fresh_authentication(self) -> dict[str, str]:
         """Performs fresh authentication flow.
@@ -149,88 +147,86 @@ class AuthenticationManager:
         """
         logger.info("Performing fresh authentication")
 
-        try:
-            # Step 1: Get initial session
-            headers = {"User-Agent": HttpHeaders.USER_AGENT}
-            response = self.session.get(
-                f"{ApiEndpoints.AUTH_BASE}{ApiEndpoints.LOGIN}", headers=headers
-            )
-            if response.status_code != 200:
-                raise AuthenticationError(
-                    f"Login page request failed: {response.status_code}"
+        with self._session_lock:
+            try:
+                # Step 1: Get initial session
+                headers = {"User-Agent": HttpHeaders.USER_AGENT}
+                response = self.session.get(
+                    f"{ApiEndpoints.AUTH_BASE}{ApiEndpoints.LOGIN}", headers=headers
+                )
+                if response.status_code != 200:
+                    raise AuthenticationError(
+                        f"Login page request failed: {response.status_code}"
+                    )
+
+                logger.info("Got initial session cookie")
+
+                # Step 2: Set required cookie
+                self.session.cookies.set(
+                    CookieNames.LAST_APP_USED, "app_thermostat", domain=".netatmo.com"
                 )
 
-            logger.info("Got initial session cookie")
+                # Step 3: Get CSRF token
+                csrf_response = self.session.get(
+                    f"{ApiEndpoints.AUTH_BASE}{ApiEndpoints.CSRF}"
+                )
+                if csrf_response.status_code != 200:
+                    raise AuthenticationError("Failed to obtain CSRF token")
 
-            # Step 2: Set required cookie
-            self.session.cookies.set(
-                CookieNames.LAST_APP_USED, "app_thermostat", domain=".netatmo.com"
-            )
+                token_data = json.loads(csrf_response.text)
+                csrf_token = token_data["token"]
 
-            # Step 3: Get CSRF token
-            csrf_response = self.session.get(
-                f"{ApiEndpoints.AUTH_BASE}{ApiEndpoints.CSRF}"
-            )
-            if csrf_response.status_code != 200:
-                raise AuthenticationError("Failed to obtain CSRF token")
+                # Step 4: Submit login credentials
+                payload = {
+                    "email": self.username,
+                    "password": self.password,
+                    "stay_logged": "on",
+                    "_token": csrf_token,
+                }
+                self.session.post(
+                    f"{ApiEndpoints.AUTH_BASE}{ApiEndpoints.POST_LOGIN}",
+                    data=payload,
+                    headers=headers,
+                )
 
-            token_data = json.loads(csrf_response.text)
-            csrf_token = token_data["token"]
+                # Step 5: Complete authentication flow
+                param = {"next_url": "https://my.netatmo.com"}
+                self.session.get(
+                    f"{ApiEndpoints.AUTH_BASE}{ApiEndpoints.KEYCHAIN}",
+                    params=param,
+                    headers=headers,
+                )
 
-            # Step 4: Submit login credentials
-            payload = {
-                "email": self.username,
-                "password": self.password,
-                "stay_logged": "on",
-                "_token": csrf_token,
-            }
-            self.session.post(
-                f"{ApiEndpoints.AUTH_BASE}{ApiEndpoints.POST_LOGIN}",
-                data=payload,
-                headers=headers,
-            )
+                # Step 6: Extract access token
+                auth_headers = self._extract_headers_from_cookies()
+                logger.debug(f"Extracted headers: {list(auth_headers.keys())}")
+                logger.debug(f"Session cookies: {list(self.session.cookies.keys())}")
 
-            # Step 5: Complete authentication flow
-            param = {"next_url": "https://my.netatmo.com"}
-            self.session.get(
-                f"{ApiEndpoints.AUTH_BASE}{ApiEndpoints.KEYCHAIN}",
-                params=param,
-                headers=headers,
-            )
+                logger.info("Authentication successful")
 
-            # Step 6: Extract access token
-            # Note: We validate the token by successfully extracting it from cookies.
-            # The actual API call validation will happen when the token is used.
-            auth_headers = self._extract_headers_from_cookies()
-            logger.debug(f"Extracted headers: {list(auth_headers.keys())}")
-            logger.debug(f"Session cookies: {list(self.session.cookies.keys())}")
+                # Step 7: Save session cookies
+                try:
+                    self.cookie_store.save(self.session.cookies.get_dict())
+                except (IOError, OSError) as e:
+                    logger.warning(f"Failed to cache session cookies: {e}. Will re-authenticate on next run.")
 
-            logger.info("Authentication successful")
+                return auth_headers
 
-            # Step 7: Save session cookies
-            try:
-                self.cookie_store.save(self.session.cookies.get_dict())
-            except (IOError, OSError) as e:
-                logger.warning(f"Failed to cache session cookies: {e}. Will re-authenticate on next run.")
-                # Continue anyway - authentication was successful
-
-            return auth_headers
-
-        except AuthenticationError:
-            raise
-        except requests.exceptions.RequestException as e:
-            logger.error(f"Network error during authentication: {e}")
-            raise AuthenticationError(
-                f"Network error during authentication: {e}"
-            ) from e
-        except (KeyError, json.JSONDecodeError) as e:
-            logger.error(f"Error parsing authentication response: {e}")
-            raise AuthenticationError(
-                f"Failed to parse authentication response: {e}"
-            ) from e
-        except Exception as e:
-            logger.error(f"Unexpected error during authentication: {e}")
-            raise AuthenticationError(f"Authentication failed: {e}") from e
+            except AuthenticationError:
+                raise
+            except requests.exceptions.RequestException as e:
+                logger.error(f"Network error during authentication: {e}")
+                raise AuthenticationError(
+                    f"Network error during authentication: {e}"
+                ) from e
+            except (KeyError, json.JSONDecodeError) as e:
+                logger.error(f"Error parsing authentication response: {e}")
+                raise AuthenticationError(
+                    f"Failed to parse authentication response: {e}"
+                ) from e
+            except Exception as e:
+                logger.error(f"Unexpected error during authentication: {e}")
+                raise AuthenticationError(f"Authentication failed: {e}") from e
 
     def _extract_headers_from_cookies(self) -> dict[str, str]:
         """Extracts access token from session cookies.
@@ -255,7 +251,10 @@ class AuthenticationManager:
 
     def invalidate(self) -> None:
         """Invalidates current authentication and clears cached credentials."""
-        self._token = None
-        self.session.cookies.clear()  # Clear session cookies to prevent stale data
+        with self._token_lock:
+            self._token = None
+            self._token_obtained_at = None
+        with self._session_lock:
+            self.session.cookies.clear()
         self.cookie_store.clear()
         logger.info("Authentication invalidated")

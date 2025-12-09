@@ -11,6 +11,7 @@ from .cookie_store import CookieStore
 from .home_service import HomeService
 from .logger import setup_logger
 from .thermostat_service import ThermostatService
+from .types import HomesDataResponse, HomeStatusResponse, TrueTemperatureResponse
 
 logger = setup_logger(__name__)
 
@@ -80,7 +81,7 @@ class NetatmoAPI:
 
     def homesdata(
         self, home_id: str | None = None, gateways_types: list[str] | None = None
-    ) -> dict:
+    ) -> HomesDataResponse:
         """Returns homes data from Netatmo API."""
         return self._home_service.get_homes_data(
             home_id=home_id, gateways_types=gateways_types
@@ -88,7 +89,7 @@ class NetatmoAPI:
 
     def homestatus(
         self, home_id: str | None = None, device_types: list[str] | None = None
-    ) -> dict:
+    ) -> HomeStatusResponse:
         """Returns current status of a home."""
         return self._home_service.get_home_status(
             home_id=home_id, device_types=device_types
@@ -109,7 +110,7 @@ class NetatmoAPI:
         room_id: str,
         corrected_temperature: float,
         home_id: str | None = None,
-    ) -> dict:
+    ) -> TrueTemperatureResponse:
         """Sets calibrated temperature for a room."""
         return self._thermostat_service.set_room_temperature(
             room_id=room_id,

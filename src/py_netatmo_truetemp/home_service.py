@@ -6,6 +6,7 @@ from .api_client import NetatmoApiClient
 from .constants import ApiEndpoints
 from .exceptions import HomeNotFoundError
 from .logger import setup_logger
+from .types import HomesDataResponse, HomeStatusResponse
 from .validators import validate_home_id
 
 logger = setup_logger(__name__)
@@ -20,7 +21,7 @@ class HomeService:
 
     def get_homes_data(
         self, home_id: str | None = None, gateways_types: list[str] | None = None
-    ) -> dict[str, Any]:
+    ) -> HomesDataResponse:
         """Returns homes data from Netatmo API.
 
         Raises:
@@ -40,7 +41,7 @@ class HomeService:
 
     def get_home_status(
         self, home_id: str | None = None, device_types: list[str] | None = None
-    ) -> dict[str, Any]:
+    ) -> HomeStatusResponse:
         """Returns current status of a home.
 
         Raises:

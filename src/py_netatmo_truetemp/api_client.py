@@ -5,7 +5,6 @@ from typing import Any, Callable
 import requests
 
 from .auth_manager import AuthenticationManager
-from .constants import HttpHeaders
 from .exceptions import ApiError
 from .logger import setup_logger
 
@@ -68,6 +67,8 @@ class NetatmoApiClient:
             except requests.exceptions.RequestException as e:
                 logger.error(f"Network error during {path}: {e}")
                 raise ApiError(f"Network error for {path}: {e}") from e
+
+        raise ApiError(f"Request to {path} failed after {max_retries + 1} attempts")
 
     def _is_authentication_error(self, e: requests.exceptions.HTTPError) -> bool:
         """Checks if an HTTPError is due to authentication failure."""
