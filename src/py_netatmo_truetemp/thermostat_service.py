@@ -86,10 +86,10 @@ class ThermostatService:
                 return []
 
             rooms_with_thermostats = []
-            for room in rooms:
+            for room_status in rooms:
                 try:
-                    room_id = str(room["id"])
-                    temp_value = room.get("therm_measured_temperature")
+                    room_id = str(room_status["id"])
+                    temp_value = room_status.get("therm_measured_temperature")
 
                     if temp_value is not None and isinstance(temp_value, (int, float)):
                         room_name = room_names.get(room_id, f"Room {room_id}")
