@@ -27,9 +27,9 @@ class ThermostatService:
     def _get_room_name(self, home_id: str, room_id: str) -> str:
         try:
             homes_data = self.home_service.get_homes_data()
-            for home in homes_data["body"]["homes"]:
-                if str(home["id"]) == str(home_id):
-                    for room in home.get("rooms", []):
+            for home_data in homes_data["body"]["homes"]:
+                if str(home_data["id"]) == str(home_id):
+                    for room in home_data.get("rooms", []):
                         if str(room["id"]) == str(room_id):
                             return room.get("name", room_id)
             return room_id
@@ -69,9 +69,9 @@ class ThermostatService:
 
         try:
             room_names: dict[str, str] = {}
-            for home in homes_data["body"]["homes"]:
-                if str(home["id"]) == str(home_id):
-                    for room in home.get("rooms", []):
+            for home_data in homes_data["body"]["homes"]:
+                if str(home_data["id"]) == str(home_id):
+                    for room in home_data.get("rooms", []):
                         room_id_str = str(room["id"])
                         room_names[room_id_str] = (
                             room.get("name") or f"Room {room_id_str}"
