@@ -169,7 +169,10 @@ class ThermostatService:
                 raise RoomNotFoundError(room_id)
 
             # Check if temperature is already at target (within tolerance)
-            if abs(current_temperature - corrected_temperature) < TEMPERATURE_TOLERANCE_CELSIUS:
+            if (
+                abs(current_temperature - corrected_temperature)
+                < TEMPERATURE_TOLERANCE_CELSIUS
+            ):
                 logger.info(
                     f"Room {room_name} temperature already at target "
                     f"({current_temperature}°C), skipping API call"
@@ -200,7 +203,7 @@ class ThermostatService:
             response = self.api_client.post_typed(
                 ApiEndpoints.TRUE_TEMPERATURE,
                 TrueTemperatureResponse,
-                json_data=payload
+                json_data=payload,
             )
 
             logger.info(

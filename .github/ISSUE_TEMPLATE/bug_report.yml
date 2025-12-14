@@ -1,0 +1,101 @@
+name: Bug Report
+description: Report a bug or unexpected behavior
+labels: ["bug", "needs-triage"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for taking the time to report a bug! Please fill out the sections below.
+
+  - type: textarea
+    id: description
+    attributes:
+      label: Bug Description
+      description: A clear and concise description of what the bug is.
+      placeholder: What happened? What did you expect to happen?
+    validations:
+      required: true
+
+  - type: textarea
+    id: reproduction
+    attributes:
+      label: Steps to Reproduce
+      description: Detailed steps to reproduce the behavior.
+      placeholder: |
+        1. Initialize with '...'
+        2. Call method '...'
+        3. See error
+    validations:
+      required: true
+
+  - type: textarea
+    id: code-sample
+    attributes:
+      label: Code Sample
+      description: If applicable, provide a minimal code sample that demonstrates the issue.
+      render: python
+      placeholder: |
+        from py_netatmo_truetemp import NetatmoAPI
+
+        api = NetatmoAPI(username="...", password="...")
+        # Your code here
+
+  - type: textarea
+    id: error-message
+    attributes:
+      label: Error Message
+      description: If applicable, paste the complete error message and stack trace.
+      render: shell
+      placeholder: |
+        Traceback (most recent call last):
+          File "...", line X, in <module>
+            ...
+
+  - type: input
+    id: version
+    attributes:
+      label: Library Version
+      description: Which version of py-netatmo-truetemp are you using?
+      placeholder: "0.1.0"
+    validations:
+      required: true
+
+  - type: input
+    id: python-version
+    attributes:
+      label: Python Version
+      description: Which Python version are you using?
+      placeholder: "3.13.0"
+    validations:
+      required: true
+
+  - type: input
+    id: os
+    attributes:
+      label: Operating System
+      description: Which operating system are you using?
+      placeholder: "Ubuntu 24.04 / macOS 14.0 / Windows 11"
+    validations:
+      required: true
+
+  - type: textarea
+    id: additional-context
+    attributes:
+      label: Additional Context
+      description: Add any other context about the problem here.
+      placeholder: |
+        - Does this happen consistently or intermittently?
+        - Have you made any configuration changes?
+        - Any relevant logs or screenshots?
+
+  - type: checkboxes
+    id: checklist
+    attributes:
+      label: Pre-submission Checklist
+      options:
+        - label: I have searched existing issues to avoid duplicates
+          required: true
+        - label: I have provided all requested information
+          required: true
+        - label: I am using a supported Python version (3.13+)
+          required: true

@@ -1,5 +1,12 @@
 # py-netatmo-truetemp
 
+[![CI](https://github.com/P4uLT/py-netatmo-truetemp/actions/workflows/ci.yml/badge.svg)](https://github.com/P4uLT/py-netatmo-truetemp/actions/workflows/ci.yml)
+[![Python 3.13+](https://img.shields.io/badge/python-3.13+-blue.svg)](https://www.python.org/downloads/)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![Code style: ruff](https://img.shields.io/badge/code%20style-ruff-000000.svg)](https://github.com/astral-sh/ruff)
+[![Type checked: mypy](https://img.shields.io/badge/type%20checked-mypy-blue.svg)](https://mypy-lang.org/)
+[![Security: bandit](https://img.shields.io/badge/security-bandit-yellow.svg)](https://github.com/PyCQA/bandit)
+
 A Python client for the Netatmo API with **truetemperature** control - set room temperatures programmatically via the undocumented API endpoint.
 
 ## Features
@@ -16,9 +23,23 @@ A Python client for the Netatmo API with **truetemperature** control - set room 
 
 ## Installation
 
+### From Source
+
 ```bash
+# Clone the repository
+git clone https://github.com/P4uLT/py-netatmo-truetemp.git
+cd py-netatmo-truetemp
+
+# Create virtual environment and install
 uv venv
 uv sync
+```
+
+### As a Dependency
+
+```bash
+# Install from GitHub (until PyPI release)
+uv add "py-netatmo-truetemp @ git+https://github.com/P4uLT/py-netatmo-truetemp.git"
 ```
 
 ## Environment Variables
@@ -168,6 +189,34 @@ The `examples/` folder contains independent applications for testing library cha
 - [examples/README.md](examples/README.md) - CLI setup and usage instructions
 - [examples/CLAUDE.md](examples/CLAUDE.md) - CLI development workflow
 
+## Contributing
+
+Contributions are welcome! Please read our [Contributing Guide](CONTRIBUTING.md) for details on:
+
+- Code of conduct
+- Development setup
+- Running tests
+- Code style guidelines
+- Submitting pull requests
+
+See also:
+- [Code of Conduct](CODE_OF_CONDUCT.md)
+- [Security Policy](SECURITY.md)
+- [Changelog](CHANGELOG.md)
+
+## Support
+
+- **Bug Reports**: [Open an issue](https://github.com/P4uLT/py-netatmo-truetemp/issues/new?template=bug_report.yml)
+- **Feature Requests**: [Request a feature](https://github.com/P4uLT/py-netatmo-truetemp/issues/new?template=feature_request.yml)
+- **Security Issues**: See [SECURITY.md](SECURITY.md)
+- **Questions**: [GitHub Discussions](https://github.com/P4uLT/py-netatmo-truetemp/discussions)
+
 ## License
 
-This project demonstrates professional software engineering practices.
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
+## Acknowledgments
+
+- Built with clean architecture principles and SOLID design
+- Uses modern Python 3.13+ features and type hints
+- Inspired by the need for programmatic thermostat control
