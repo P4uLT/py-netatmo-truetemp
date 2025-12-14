@@ -1,0 +1,38 @@
+# Python-generated files
+__pycache__/
+*.py[oc]
+build/
+dist/
+wheels/
+*.egg-info
+
+# Type checking cache
+.mypy_cache/
+
+# Virtual environments
+.venv
+
+# Testing
+.pytest_cache/
+.tox/
+.coverage
+htmlcov/
+*.cover
+
+# Editor files
+*.swp
+*.swo
+*~
+.DS_Store
+
+# Logs
+*.log
+
+# IDE-specific settings
+.vscode/
+
+# Mise local configuration (contains credentials and room IDs)
+.mise.local.toml
+
+# Personal task configurations
+examples/Taskfile.yml

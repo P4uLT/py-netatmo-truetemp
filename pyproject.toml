@@ -1,0 +1,66 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "py-netatmo-truetemp"
+version = "0.1.0"
+description = "Python client for Netatmo API with truetemperature control - set room temperatures programmatically"
+readme = "README.md"
+requires-python = ">=3.13"
+license = {text = "MIT"}
+authors = [
+    {name = "P4uLT", email = "P4uLT@users.noreply.github.com"},
+]
+maintainers = [
+    {name = "P4uLT", email = "P4uLT@users.noreply.github.com"},
+]
+keywords = [
+    "netatmo",
+    "thermostat",
+    "smart-home",
+    "iot",
+    "home-automation",
+    "temperature-control",
+    "api-client",
+]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.13",
+    "Programming Language :: Python :: 3 :: Only",
+    "Topic :: Home Automation",
+    "Topic :: Software Development :: Libraries :: Python Modules",
+    "Typing :: Typed",
+]
+dependencies = [
+    "platformdirs>=4.0.0",
+    "requests==2.32.3",
+]
+
+[project.urls]
+Homepage = "https://github.com/P4uLT/py-netatmo-truetemp"
+Repository = "https://github.com/P4uLT/py-netatmo-truetemp"
+Issues = "https://github.com/P4uLT/py-netatmo-truetemp/issues"
+Changelog = "https://github.com/P4uLT/py-netatmo-truetemp/blob/main/CHANGELOG.md"
+Documentation = "https://github.com/P4uLT/py-netatmo-truetemp#readme"
+
+[dependency-groups]
+dev = [
+    "bandit[toml]>=1.8.0",
+    "mypy>=1.18.2",
+    "pre-commit>=4.0.0",
+    "pylint>=4.0.3",
+    "pytest-cov>=6.0.0",
+    "pytest-mock>=3.15.1",
+    "pytest>=9.0.2",
+    "ruff>=0.14.5",
+    "twine>=6.0.0",
+    "types-requests>=2.32.4.20250913",
+]
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/py_netatmo_truetemp"]
