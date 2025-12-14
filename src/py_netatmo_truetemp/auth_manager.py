@@ -61,7 +61,9 @@ class AuthenticationManager:
         is_expired = current_age > max_token_age
 
         if is_expired:
-            logger.info(f"Token expired (age: {current_age:.0f}s, max: {max_token_age}s)")
+            logger.info(
+                f"Token expired (age: {current_age:.0f}s, max: {max_token_age}s)"
+            )
 
         return is_expired
 
@@ -113,7 +115,9 @@ class AuthenticationManager:
 
             # Validate session
             try:
-                response = self.session.get(f"{ApiEndpoints.AUTH_BASE}{ApiEndpoints.CSRF}")
+                response = self.session.get(
+                    f"{ApiEndpoints.AUTH_BASE}{ApiEndpoints.CSRF}"
+                )
                 if response.status_code != 200:
                     logger.info("Cached session is invalid")
                     self.cookie_store.clear()
@@ -208,7 +212,9 @@ class AuthenticationManager:
                 try:
                     self.cookie_store.save(self.session.cookies.get_dict())
                 except (IOError, OSError) as e:
-                    logger.warning(f"Failed to cache session cookies: {e}. Will re-authenticate on next run.")
+                    logger.warning(
+                        f"Failed to cache session cookies: {e}. Will re-authenticate on next run."
+                    )
 
                 return auth_headers
 

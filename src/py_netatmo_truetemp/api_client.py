@@ -32,7 +32,7 @@ class NetatmoApiClient:
         url: str,
         path: str,
         max_retries: int = 1,
-        **request_kwargs
+        **request_kwargs,
     ) -> dict[str, Any]:
         """Makes authenticated HTTP request with automatic retry on auth failures.
 
@@ -42,7 +42,9 @@ class NetatmoApiClient:
         for attempt in range(max_retries + 1):
             try:
                 headers = self.auth_manager.get_auth_headers()
-                response = method(url, headers=headers, timeout=self.timeout, **request_kwargs)
+                response = method(
+                    url, headers=headers, timeout=self.timeout, **request_kwargs
+                )
                 response.raise_for_status()
                 return response.json()
 
@@ -77,8 +79,14 @@ class NetatmoApiClient:
         if e.response.status_code == 403:
             try:
                 content = e.response.text.lower()
-                if "expired" in content or "invalid" in content or "forbidden" in content:
-                    logger.warning(f"Detected authentication error (403): {content[:200]}")
+                if (
+                    "expired" in content
+                    or "invalid" in content
+                    or "forbidden" in content
+                ):
+                    logger.warning(
+                        f"Detected authentication error (403): {content[:200]}"
+                    )
                     return True
             except Exception:
                 # If we can't parse the response, assume it's auth-related
@@ -92,9 +100,7 @@ class NetatmoApiClient:
             ApiError: If the API request fails
         """
         url = f"{self.endpoint}{path}"
-        return self._authenticated_request(
-            self.session.get, url, path, params=params
-        )
+        return self._authenticated_request(self.session.get, url, path, params=params)
 
     def post(
         self, path: str, params: dict | None = None, json_data: dict | None = None

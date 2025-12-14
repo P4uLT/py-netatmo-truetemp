@@ -42,8 +42,7 @@ class TestSetTruetemperatureCommand:
         mock_resolve.return_value = ("123", "Living Room")
 
         result = runner.invoke(
-            app,
-            ["set-truetemperature", "--room-name", "Living Room", "--temperature", "20.5"]
+            app, ["set-truetemperature", "--room-name", "Living Room", "--temperature", "20.5"]
         )
 
         assert result.exit_code == 0
@@ -55,9 +54,6 @@ class TestSetTruetemperatureCommand:
 
     def test_set_temperature_missing_parameters(self):
         """Test error when required parameters missing."""
-        result = runner.invoke(
-            app,
-            ["set-truetemperature", "--temperature", "20.5"]
-        )
+        result = runner.invoke(app, ["set-truetemperature", "--temperature", "20.5"])
 
         assert result.exit_code == 1

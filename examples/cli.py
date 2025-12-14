@@ -32,9 +32,8 @@ Examples:
 @handle_api_errors
 def list_rooms(
     home_id: Annotated[
-        str | None,
-        typer.Option(help="Home ID (optional, uses default if not provided)")
-    ] = None
+        str | None, typer.Option(help="Home ID (optional, uses default if not provided)")
+    ] = None,
 ) -> None:
     """Lists all rooms with thermostats.
 
@@ -53,18 +52,13 @@ def list_rooms(
 @handle_api_errors
 def set_truetemperature(
     temperature: Annotated[float, typer.Option(help="Corrected temperature value")],
-    room_id: Annotated[
-        str | None,
-        typer.Option(help="Room ID to set temperature for")
-    ] = None,
+    room_id: Annotated[str | None, typer.Option(help="Room ID to set temperature for")] = None,
     room_name: Annotated[
-        str | None,
-        typer.Option(help="Room name to set temperature for (alternative to --room-id)")
+        str | None, typer.Option(help="Room name to set temperature for (alternative to --room-id)")
     ] = None,
     home_id: Annotated[
-        str | None,
-        typer.Option(help="Home ID (optional, uses default if not provided)")
-    ] = None
+        str | None, typer.Option(help="Home ID (optional, uses default if not provided)")
+    ] = None,
 ) -> None:
     """Sets calibrated temperature for a Netatmo room.
 

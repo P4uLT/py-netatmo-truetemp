@@ -39,8 +39,7 @@ class NetatmoConfig:
         missing = [key for key, value in required_vars.items() if not value]
         if missing:
             raise ValueError(
-                f"Missing required environment variables: "
-                f"{', '.join(k.upper() for k in missing)}"
+                f"Missing required environment variables: {', '.join(k.upper() for k in missing)}"
             )
 
         optional_config = {
@@ -79,33 +78,37 @@ def handle_api_errors(func):
             raise
         except ValueError as e:
             from display import display_error_panel
+
             display_error_panel("Configuration Error", str(e))
             raise typer.Exit(code=1)
         except ValidationError as e:
             from display import display_error_panel
+
             display_error_panel("Validation Error", str(e))
             raise typer.Exit(code=1)
         except AuthenticationError as e:
             from display import display_error_panel
-            display_error_panel(
-                "Authentication Failed",
-                f"{e}\n\nCheck your credentials"
-            )
+
+            display_error_panel("Authentication Failed", f"{e}\n\nCheck your credentials")
             raise typer.Exit(code=1)
         except (HomeNotFoundError, RoomNotFoundError) as e:
             from display import display_error_panel
+
             display_error_panel("Not Found", str(e))
             raise typer.Exit(code=1)
         except ApiError as e:
             from display import display_error_panel
+
             display_error_panel("API Error", str(e))
             raise typer.Exit(code=1)
         except NetatmoError as e:
             from display import display_error_panel
+
             display_error_panel("Netatmo Error", str(e))
             raise typer.Exit(code=1)
         except Exception as e:
             from display import display_error_panel
+
             display_error_panel("Unexpected Error", str(e))
             raise typer.Exit(code=1)
 
@@ -113,10 +116,7 @@ def handle_api_errors(func):
 
 
 def resolve_room_id(
-    api: NetatmoAPI,
-    room_id: str | None,
-    room_name: str | None,
-    home_id: str | None
+    api: NetatmoAPI, room_id: str | None, room_name: str | None, home_id: str | None
 ) -> tuple[str, str]:
     """Resolves room ID from name or validates direct ID.
 
@@ -135,7 +135,7 @@ def resolve_room_id(
     rooms = api.list_thermostat_rooms(home_id=home_id)
 
     if room_name:
-        matching = [r for r in rooms if r['name'].lower() == room_name.lower()]
+        matching = [r for r in rooms if r["name"].lower() == room_name.lower()]
 
         if not matching:
             raise RoomNotFoundError(room_name)
@@ -145,13 +145,13 @@ def resolve_room_id(
                 f"[yellow]Warning:[/yellow] Multiple rooms named '{room_name}', using first"
             )
 
-        return matching[0]['id'], matching[0]['name']
+        return matching[0]["id"], matching[0]["name"]
 
-    room = next((r for r in rooms if r['id'] == room_id), None)
+    room = next((r for r in rooms if r["id"] == room_id), None)
     if not room:
         raise RoomNotFoundError(room_id)
 
-    return room_id, room['name']
+    return room_id, room["name"]
 
 
 def validate_room_input(room_id: str | None, room_name: str | None) -> None:
@@ -165,13 +165,9 @@ def validate_room_input(room_id: str | None, room_name: str | None) -> None:
         typer.Exit: If validation fails
     """
     if not room_id and not room_name:
-        error_console.print(
-            "[red]Error:[/red] Either --room-id or --room-name must be provided"
-        )
+        error_console.print("[red]Error:[/red] Either --room-id or --room-name must be provided")
         raise typer.Exit(code=1)
 
     if room_id and room_name:
-        error_console.print(
-            "[red]Error:[/red] Cannot use both --room-id and --room-name"
-        )
+        error_console.print("[red]Error:[/red] Cannot use both --room-id and --room-name")
         raise typer.Exit(code=1)

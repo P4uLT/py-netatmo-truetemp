@@ -18,14 +18,16 @@ class TestListRoomsWithThermostats:
         mock_home_service.get_default_home_id.return_value = "test-home-id"
         mock_home_service.get_homes_data.return_value = {
             "body": {
-                "homes": [{
-                    "id": "test-home-id",
-                    "rooms": [
-                        {"id": "room1", "name": "Living Room"},
-                        {"id": "room2", "name": "Bedroom"},
-                        {"id": "room3", "name": "Kitchen"}
-                    ]
-                }]
+                "homes": [
+                    {
+                        "id": "test-home-id",
+                        "rooms": [
+                            {"id": "room1", "name": "Living Room"},
+                            {"id": "room2", "name": "Bedroom"},
+                            {"id": "room3", "name": "Kitchen"},
+                        ],
+                    }
+                ]
             }
         }
         mock_home_service.get_home_status.return_value = {
@@ -34,7 +36,7 @@ class TestListRoomsWithThermostats:
                     "rooms": [
                         {"id": "room1", "therm_measured_temperature": 21.5},
                         {"id": "room2", "therm_measured_temperature": 19.0},
-                        {"id": "room3"}
+                        {"id": "room3"},
                     ]
                 }
             }
@@ -54,19 +56,10 @@ class TestListRoomsWithThermostats:
 
         mock_home_service.get_default_home_id.return_value = "test-home-id"
         mock_home_service.get_homes_data.return_value = {
-            "body": {
-                "homes": [{
-                    "id": "test-home-id",
-                    "rooms": []
-                }]
-            }
+            "body": {"homes": [{"id": "test-home-id", "rooms": []}]}
         }
         mock_home_service.get_home_status.return_value = {
-            "body": {
-                "home": {
-                    "rooms": []
-                }
-            }
+            "body": {"home": {"rooms": []}}
         }
 
         service = ThermostatService(mock_api_client, mock_home_service)
@@ -82,22 +75,16 @@ class TestListRoomsWithThermostats:
         mock_home_service.get_default_home_id.return_value = "test-home-id"
         mock_home_service.get_homes_data.return_value = {
             "body": {
-                "homes": [{
-                    "id": "test-home-id",
-                    "rooms": [
-                        {"id": "room1", "name": "Storage"}
-                    ]
-                }]
+                "homes": [
+                    {
+                        "id": "test-home-id",
+                        "rooms": [{"id": "room1", "name": "Storage"}],
+                    }
+                ]
             }
         }
         mock_home_service.get_home_status.return_value = {
-            "body": {
-                "home": {
-                    "rooms": [
-                        {"id": "room1"}
-                    ]
-                }
-            }
+            "body": {"home": {"rooms": [{"id": "room1"}]}}
         }
 
         service = ThermostatService(mock_api_client, mock_home_service)
@@ -112,21 +99,17 @@ class TestListRoomsWithThermostats:
 
         mock_home_service.get_homes_data.return_value = {
             "body": {
-                "homes": [{
-                    "id": "specific-home",
-                    "rooms": [
-                        {"id": "room1", "name": "Office"}
-                    ]
-                }]
+                "homes": [
+                    {
+                        "id": "specific-home",
+                        "rooms": [{"id": "room1", "name": "Office"}],
+                    }
+                ]
             }
         }
         mock_home_service.get_home_status.return_value = {
             "body": {
-                "home": {
-                    "rooms": [
-                        {"id": "room1", "therm_measured_temperature": 20.0}
-                    ]
-                }
+                "home": {"rooms": [{"id": "room1", "therm_measured_temperature": 20.0}]}
             }
         }
 
@@ -135,8 +118,12 @@ class TestListRoomsWithThermostats:
 
         assert len(result) == 1
         assert result[0] == {"id": "room1", "name": "Office"}
-        mock_home_service.get_homes_data.assert_called_once_with(home_id="specific-home")
-        mock_home_service.get_home_status.assert_called_once_with(home_id="specific-home")
+        mock_home_service.get_homes_data.assert_called_once_with(
+            home_id="specific-home"
+        )
+        mock_home_service.get_home_status.assert_called_once_with(
+            home_id="specific-home"
+        )
 
     def test_list_rooms_malformed_response(self):
         """Test handling of malformed API response."""
@@ -144,11 +131,7 @@ class TestListRoomsWithThermostats:
         mock_api_client = Mock()
 
         mock_home_service.get_default_home_id.return_value = "test-home-id"
-        mock_home_service.get_homes_data.return_value = {
-            "body": {
-                "homes": []
-            }
-        }
+        mock_home_service.get_homes_data.return_value = {"body": {"homes": []}}
         mock_home_service.get_home_status.return_value = {"body": {}}
 
         service = ThermostatService(mock_api_client, mock_home_service)
@@ -163,22 +146,11 @@ class TestListRoomsWithThermostats:
 
         mock_home_service.get_default_home_id.return_value = "test-home-id"
         mock_home_service.get_homes_data.return_value = {
-            "body": {
-                "homes": [{
-                    "id": "test-home-id",
-                    "rooms": [
-                        {"id": "room1"}
-                    ]
-                }]
-            }
+            "body": {"homes": [{"id": "test-home-id", "rooms": [{"id": "room1"}]}]}
         }
         mock_home_service.get_home_status.return_value = {
             "body": {
-                "home": {
-                    "rooms": [
-                        {"id": "room1", "therm_measured_temperature": 20.0}
-                    ]
-                }
+                "home": {"rooms": [{"id": "room1", "therm_measured_temperature": 20.0}]}
             }
         }
 

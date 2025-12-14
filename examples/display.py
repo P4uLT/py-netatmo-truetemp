@@ -24,7 +24,7 @@ def display_rooms_table(rooms: list[dict[str, str]]) -> None:
     table.add_column("Room Name", style="green")
 
     for room in rooms:
-        table.add_row(room['id'], room['name'])
+        table.add_row(room["id"], room["name"])
 
     console.print(table)
 
@@ -50,10 +50,5 @@ def display_error_panel(title: str, message: str) -> None:
         message: Error message
     """
     error_console.print(
-        Panel(
-            message,
-            title=f"[bold red]{title}[/bold red]",
-            border_style="red",
-            expand=False
-        )
+        Panel(message, title=f"[bold red]{title}[/bold red]", border_style="red", expand=False)
     )

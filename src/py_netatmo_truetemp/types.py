@@ -8,6 +8,7 @@ ResponseStatus = Literal["ok", "failed"]
 
 class RoomStatus(TypedDict):
     """Room status from homestatus API."""
+
     id: str
     reachable: NotRequired[bool]
     therm_measured_temperature: NotRequired[float]
@@ -21,6 +22,7 @@ class RoomStatus(TypedDict):
 
 class HomeStatus(TypedDict):
     """Home status data."""
+
     id: str
     rooms: list[RoomStatus]
     modules: NotRequired[list[dict]]
@@ -28,11 +30,13 @@ class HomeStatus(TypedDict):
 
 class HomeStatusBody(TypedDict):
     """Body of homestatus response."""
+
     home: HomeStatus
 
 
 class HomeStatusResponse(TypedDict):
     """Response from /api/homestatus endpoint."""
+
     status: ResponseStatus
     time_server: int
     body: HomeStatusBody
@@ -40,6 +44,7 @@ class HomeStatusResponse(TypedDict):
 
 class RoomInfo(TypedDict):
     """Room information from homesdata API."""
+
     id: str
     name: str
     type: NotRequired[str]
@@ -48,6 +53,7 @@ class RoomInfo(TypedDict):
 
 class ModuleInfo(TypedDict):
     """Module information."""
+
     id: str
     type: str
     name: str
@@ -57,6 +63,7 @@ class ModuleInfo(TypedDict):
 
 class HomeData(TypedDict):
     """Home data from homesdata API."""
+
     id: str
     name: str
     altitude: NotRequired[int]
@@ -71,12 +78,14 @@ class HomeData(TypedDict):
 
 class HomesDataBody(TypedDict):
     """Body of homesdata response."""
+
     homes: list[HomeData]
     user: NotRequired[dict]
 
 
 class HomesDataResponse(TypedDict):
     """Response from /api/homesdata endpoint."""
+
     status: ResponseStatus
     time_server: int
     body: HomesDataBody
@@ -84,5 +93,6 @@ class HomesDataResponse(TypedDict):
 
 class TrueTemperatureResponse(TypedDict):
     """Response from /api/truetemperature endpoint."""
+
     status: ResponseStatus
     time_server: int

@@ -92,9 +92,7 @@ class NetatmoAPI:
         """Returns the default home ID."""
         return self._home_service.get_default_home_id()
 
-    def list_thermostat_rooms(
-        self, home_id: str | None = None
-    ) -> list[dict[str, str]]:
+    def list_thermostat_rooms(self, home_id: str | None = None) -> list[dict[str, str]]:
         """Lists all rooms with thermostats in a home."""
         return self._thermostat_service.list_rooms_with_thermostats(home_id=home_id)
 

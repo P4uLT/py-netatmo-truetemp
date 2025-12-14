@@ -24,7 +24,7 @@ def setup_logger(name: str) -> logging.Logger:
 
     stream_handler = logging.StreamHandler()
     formatter = logging.Formatter(
-        f'%(levelname)-8s [%(filename)s:%(lineno)d] ({environment}) - %(message)s'
+        f"%(levelname)-8s [%(filename)s:%(lineno)d] ({environment}) - %(message)s"
     )
     stream_handler.setFormatter(formatter)
     logger.addHandler(stream_handler)

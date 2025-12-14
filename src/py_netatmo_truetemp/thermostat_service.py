@@ -1,6 +1,5 @@
 """Thermostat operations and temperature control."""
 
-
 from .api_client import NetatmoApiClient
 from .constants import ApiEndpoints
 from .exceptions import ApiError, RoomNotFoundError
@@ -72,7 +71,9 @@ class ThermostatService:
                 if str(home["id"]) == str(home_id):
                     for room in home.get("rooms", []):
                         room_id_str = str(room["id"])
-                        room_names[room_id_str] = room.get("name") or f"Room {room_id_str}"
+                        room_names[room_id_str] = (
+                            room.get("name") or f"Room {room_id_str}"
+                        )
                     break
 
             home = status_response["body"]["home"]
@@ -90,7 +91,9 @@ class ThermostatService:
 
                     if temp_value is not None and isinstance(temp_value, (int, float)):
                         room_name = room_names.get(room_id, f"Room {room_id}")
-                        rooms_with_thermostats.append({"id": room_id, "name": room_name})
+                        rooms_with_thermostats.append(
+                            {"id": room_id, "name": room_name}
+                        )
                 except (KeyError, TypeError) as e:
                     logger.warning(f"Skipping room with missing required field: {e}")
                     continue

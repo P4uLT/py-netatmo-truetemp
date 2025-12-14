@@ -3,6 +3,7 @@
 
 class ApiEndpoints:
     """Netatmo API endpoints."""
+
     # Base URLs
     AUTH_BASE = "https://auth.netatmo.com"
 
