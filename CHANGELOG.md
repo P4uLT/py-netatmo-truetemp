@@ -21,25 +21,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - CI/CD pipeline with GitHub Actions
 - Security scanning with bandit
 - Type checking with mypy
-- Linting with ruff
+- Linting with ruff and pre-commit hooks
 - CLI example application with Rich UI
+- Core API client functionality
+- Home and thermostat service layers
+- Authentication manager with cookie caching
+- Input validation and error handling
+- Comprehensive documentation (README, CLAUDE.md, CONTRIBUTING.md)
+- Open-source community files (LICENSE, CODE_OF_CONDUCT, SECURITY)
+- GitHub issue and PR templates
+- Automated dependency updates with Dependabot
+- Type distribution marker (py.typed)
 
 ### Security
 - Secure cookie storage with proper file permissions
 - HTTPS-only communication
 - No unsafe pickle serialization
 - Environment variable credential management
-
-## [0.1.0] - 2024-12-14
-
-### Added
-- Initial public release
-- Core API client functionality
-- Home and thermostat service layers
-- Authentication manager with cookie caching
-- Input validation and error handling
-- Comprehensive documentation (README, CLAUDE.md)
-- Example CLI application
-
-[Unreleased]: https://github.com/P4uLT/py-netatmo-truetemp/compare/v0.1.0...HEAD
-[0.1.0]: https://github.com/P4uLT/py-netatmo-truetemp/releases/tag/v0.1.0
