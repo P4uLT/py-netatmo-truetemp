@@ -9,6 +9,18 @@
 
 A Python client for the Netatmo API with **truetemperature** control - set room temperatures programmatically via the undocumented API endpoint.
 
+## ⚠️ Disclaimer
+
+**Unofficial Project**: This is an independent, community-developed library and is **not affiliated with, endorsed by, or supported by Netatmo or Legrand**.
+
+**Why This Exists**: The official Netatmo OAuth API does not currently support programmatic temperature adjustments via the `truetemperature` endpoint. This library fills that gap using reverse-engineered API endpoints.
+
+**Archival Policy**: This repository will be archived or removed if:
+- Netatmo officially adds temperature control support to their OAuth API
+- Netatmo requests takedown of this project
+
+**Use at Your Own Risk**: This library relies on undocumented endpoints that may change without notice. Functionality could break if Netatmo modifies their internal API.
+
 ## Features
 
 - **TrueTemperature API**: Set room temperatures via Netatmo's undocumented endpoint
