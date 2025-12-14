@@ -168,9 +168,6 @@ jobs:
       - name: Build package
         run: uv build
 
-      - name: Install twine
-        run: uv pip install twine
-
       - name: Check package metadata
         run: uv run twine check dist/*
 
