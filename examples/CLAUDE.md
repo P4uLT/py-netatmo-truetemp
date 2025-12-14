@@ -27,7 +27,7 @@ py-netatmo-truetemp = { path = "..", editable = true }
 ### Independent Environment
 
 This folder has its own isolated setup:
-- `pyproject.toml` - CLI dependencies (parent library + Click)
+- `pyproject.toml` - CLI dependencies (parent library + Typer)
 - `.venv/` - Isolated virtual environment
 
 ## Setup Instructions
@@ -42,7 +42,7 @@ uv venv        # Creates .venv/ in examples folder
 ### 2. Install Dependencies
 
 ```bash
-uv sync        # Installs parent library (editable) + Click + dependencies
+uv sync        # Installs parent library (editable) + Typer + dependencies
 ```
 
 ### 3. Configure Environment Variables
@@ -125,7 +125,7 @@ The CLI demonstrates best practices for using the library with a clean, modular 
 ### Module Organization
 
 **`cli.py`** - Application entry point:
-- Click command group definition (`list-rooms`, `set-truetemperature`)
+- Typer app definition (`list-rooms`, `set-truetemperature`)
 - Command routing and parameter handling
 - Delegates to helper and display modules
 
@@ -141,12 +141,13 @@ The CLI demonstrates best practices for using the library with a clean, modular 
 - `display_temperature_result()` - Success message for temperature changes
 - `display_error_panel()` - Styled error panels with red borders
 
-### Click Framework
+### Typer Framework
 
-- Type-safe command-line arguments
+- Type-safe command-line arguments with Annotated pattern
 - Automatic help generation (`--help`)
 - Built-in input validation
-- Command groups and aliases
+- Modern Python 3.13+ type hints support
+- Rich integration for beautiful terminal output
 
 ### Library Integration Pattern
 
@@ -218,7 +219,7 @@ Required environment variables:
 - If issues persist, try `uv sync` to refresh
 
 **CLI crashes**:
-- Check Click version: `uv pip show click`
+- Check Typer version: `uv pip show typer`
 - Enable debug logging in library (see `../CLAUDE.md`)
 
 ### Getting Help
@@ -236,7 +237,7 @@ uv add tabulate
 ```
 
 **Note**: Parent library dependencies (requests, platformdirs) are automatically available. The CLI already includes:
-- `click>=8.1.8` - CLI framework
+- `typer[all]>=0.9.0` - CLI framework with Rich integration
 - `rich>=14.2.0` - Terminal formatting (tables, panels, spinners)
 
 ## Best Practices

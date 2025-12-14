@@ -5,7 +5,7 @@ import functools
 import os
 import sys
 
-import click
+import typer
 from rich.console import Console
 from rich.status import Status
 
@@ -77,39 +77,39 @@ def handle_api_errors(func):
     def wrapper(*args, **kwargs):
         try:
             return func(*args, **kwargs)
-        except click.Abort:
+        except typer.Exit:
             raise
         except ValueError as e:
             from display import display_error_panel
             display_error_panel("Configuration Error", str(e))
-            raise click.Abort()
+            raise typer.Exit(code=1)
         except ValidationError as e:
             from display import display_error_panel
             display_error_panel("Validation Error", str(e))
-            raise click.Abort()
+            raise typer.Exit(code=1)
         except AuthenticationError as e:
             from display import display_error_panel
             display_error_panel(
                 "Authentication Failed",
                 f"{e}\n\nCheck your credentials"
             )
-            raise click.Abort()
+            raise typer.Exit(code=1)
         except (HomeNotFoundError, RoomNotFoundError) as e:
             from display import display_error_panel
             display_error_panel("Not Found", str(e))
-            raise click.Abort()
+            raise typer.Exit(code=1)
         except ApiError as e:
             from display import display_error_panel
             display_error_panel("API Error", str(e))
-            raise click.Abort()
+            raise typer.Exit(code=1)
         except NetatmoError as e:
             from display import display_error_panel
             display_error_panel("Netatmo Error", str(e))
-            raise click.Abort()
+            raise typer.Exit(code=1)
         except Exception as e:
             from display import display_error_panel
             display_error_panel("Unexpected Error", str(e))
-            raise click.Abort()
+            raise typer.Exit(code=1)
 
     return wrapper
 
@@ -164,16 +164,16 @@ def validate_room_input(room_id: str | None, room_name: str | None) -> None:
         room_name: Room name parameter
 
     Raises:
-        click.Abort: If validation fails
+        typer.Exit: If validation fails
     """
     if not room_id and not room_name:
         error_console.print(
             "[red]Error:[/red] Either --room-id or --room-name must be provided"
         )
-        raise click.Abort()
+        raise typer.Exit(code=1)
 
     if room_id and room_name:
         error_console.print(
             "[red]Error:[/red] Cannot use both --room-id and --room-name"
         )
-        raise click.Abort()
+        raise typer.Exit(code=1)

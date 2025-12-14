@@ -1,7 +1,9 @@
 #!/usr/bin/env python3
 """CLI example for py-netatmo-truetemp library."""
 
-import click
+from typing import Annotated
+
+import typer
 
 from helpers import (
     create_netatmo_api_with_spinner,
@@ -15,59 +17,63 @@ from display import (
 )
 
 
-@click.group()
-def cli():
-    """Netatmo thermostat control CLI.
+app = typer.Typer(
+    help="""Netatmo thermostat control CLI.
 
-    Examples:
-        python cli.py list-rooms
-        python cli.py set-truetemperature --room-name "Living Room" --temperature 20.5
-    """
-    pass
+Examples:
 
+  python cli.py list-rooms
 
-@cli.command(name="list-rooms")
-@click.option(
-    "--home-id", default=None, help="Home ID (optional, uses default if not provided)"
+  python cli.py set-truetemperature --room-name "Living Room" --temperature 20.5
+"""
 )
+
+
+@app.command(name="list-rooms")
 @handle_api_errors
-def list_rooms(home_id: str | None = None):
+def list_rooms(
+    home_id: Annotated[
+        str | None,
+        typer.Option(help="Home ID (optional, uses default if not provided)")
+    ] = None
+) -> None:
     """Lists all rooms with thermostats.
 
     Example:
-        python cli.py list-rooms
-        python cli.py list-rooms --home-id <home_id>
+
+      python cli.py list-rooms
+
+      python cli.py list-rooms --home-id <home_id>
     """
     api = create_netatmo_api_with_spinner()
     rooms = api.list_thermostat_rooms(home_id=home_id)
     display_rooms_table(rooms)
 
 
-@cli.command(name="set-truetemperature")
-@click.option("--room-id", default=None, help="Room ID to set temperature for")
-@click.option(
-    "--room-name",
-    default=None,
-    help="Room name to set temperature for (alternative to --room-id)"
-)
-@click.option(
-    "--temperature", type=float, required=True, help="Corrected temperature value"
-)
-@click.option(
-    "--home-id", default=None, help="Home ID (optional, uses default if not provided)"
-)
+@app.command(name="set-truetemperature")
 @handle_api_errors
 def set_truetemperature(
-    room_id: str | None,
-    room_name: str | None,
-    temperature: float,
-    home_id: str | None = None
-):
+    temperature: Annotated[float, typer.Option(help="Corrected temperature value")],
+    room_id: Annotated[
+        str | None,
+        typer.Option(help="Room ID to set temperature for")
+    ] = None,
+    room_name: Annotated[
+        str | None,
+        typer.Option(help="Room name to set temperature for (alternative to --room-id)")
+    ] = None,
+    home_id: Annotated[
+        str | None,
+        typer.Option(help="Home ID (optional, uses default if not provided)")
+    ] = None
+) -> None:
     """Sets calibrated temperature for a Netatmo room.
 
     Example:
-        python cli.py set-truetemperature --room-id 1234567890 --temperature 20.5
-        python cli.py set-truetemperature --room-name "Living Room" --temperature 20.5
+
+      python cli.py set-truetemperature --room-id 1234567890 --temperature 20.5
+
+      python cli.py set-truetemperature --room-name "Living Room" --temperature 20.5
     """
     validate_room_input(room_id, room_name)
 
@@ -84,4 +90,4 @@ def set_truetemperature(
 
 
 if __name__ == "__main__":
-    cli()
+    app()
