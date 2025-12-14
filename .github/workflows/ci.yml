@@ -100,7 +100,7 @@ jobs:
 
       - name: Install examples dependencies
         working-directory: examples
-        run: uv sync
+        run: uv sync --all-extras
 
       - name: Run ruff format check on examples
         working-directory: examples
