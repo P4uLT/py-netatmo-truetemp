@@ -5,17 +5,16 @@ from typing import Annotated
 
 import typer
 
+from display import (
+    display_rooms_table,
+    display_temperature_result,
+)
 from helpers import (
     create_netatmo_api_with_spinner,
     handle_api_errors,
     resolve_room_id,
     validate_room_input,
 )
-from display import (
-    display_rooms_table,
-    display_temperature_result,
-)
-
 
 app = typer.Typer(
     help="""Netatmo thermostat control CLI.

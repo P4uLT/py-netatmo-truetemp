@@ -3,21 +3,19 @@
 
 import functools
 import os
-import sys
 
 import typer
-from rich.console import Console
-from rich.status import Status
-
 from py_netatmo_truetemp import NetatmoAPI
 from py_netatmo_truetemp.exceptions import (
-    AuthenticationError,
     ApiError,
-    NetatmoError,
-    ValidationError,
-    RoomNotFoundError,
+    AuthenticationError,
     HomeNotFoundError,
+    NetatmoError,
+    RoomNotFoundError,
+    ValidationError,
 )
+from rich.console import Console
+from rich.status import Status
 
 console = Console()
 error_console = Console(stderr=True)
