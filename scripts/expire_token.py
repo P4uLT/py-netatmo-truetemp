@@ -1,8 +1,17 @@
 #!/usr/bin/env python3
-"""Script to expire the Netatmo access token for testing."""
+"""Script to expire the Netatmo access token for testing authentication retry logic.
+
+This script intentionally corrupts the cached Netatmo authentication token
+to simulate an expired or invalid token scenario. This is useful for testing
+the automatic authentication retry mechanism in the NetatmoApiClient.
+
+The script modifies the 'netatmocomaccess_token' value in the cached cookies
+file by replacing a portion of it with 'EXPIRED_INVALID' to make it invalid.
+"""
 
 import json
 import os
+import sys
 
 import platformdirs
 
@@ -12,7 +21,7 @@ cookies_file = os.path.join(cache_dir, "cookies.json")
 
 if not os.path.exists(cookies_file):
     print(f"Cookies file not found: {cookies_file}")
-    exit(1)
+    sys.exit(1)
 
 # Read current cookies
 with open(cookies_file, "r") as f:

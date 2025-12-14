@@ -1,7 +1,5 @@
 """Thermostat operations and temperature control."""
 
-from typing import cast
-
 from .api_client import NetatmoApiClient
 from .constants import ApiEndpoints
 from .exceptions import ApiError, RoomNotFoundError
@@ -15,6 +13,9 @@ from .validators import (
 )
 
 logger = setup_logger(__name__)
+
+# Temperature tolerance for skipping API calls (in degrees Celsius)
+TEMPERATURE_TOLERANCE_CELSIUS = 0.1
 
 
 class ThermostatService:
@@ -132,7 +133,7 @@ class ThermostatService:
         # This is only used for logging, so we'll fall back to room_id if it fails
         try:
             room_name = self._get_room_name(home_id, room_id)
-        except Exception as e:
+        except (KeyError, IndexError, ApiError) as e:
             logger.debug(f"Could not fetch room name: {e}")
             room_name = room_id  # Fallback to ID
 
@@ -167,19 +168,18 @@ class ThermostatService:
                 logger.error(f"Could not get current temperature for room {room_id}")
                 raise RoomNotFoundError(room_id)
 
-            # Check if temperature is already at target (within 0.1°C tolerance)
-            if abs(current_temperature - corrected_temperature) < 0.1:
+            # Check if temperature is already at target (within tolerance)
+            if abs(current_temperature - corrected_temperature) < TEMPERATURE_TOLERANCE_CELSIUS:
                 logger.info(
                     f"Room {room_name} temperature already at target "
                     f"({current_temperature}°C), skipping API call"
                 )
-                return cast(
-                    TrueTemperatureResponse,
-                    {
-                        "status": "ok",
-                        "time_server": status_response["time_server"],
-                    },
-                )
+                # Create a proper TrueTemperatureResponse without cast
+                response: TrueTemperatureResponse = {
+                    "status": "ok",
+                    "time_server": status_response["time_server"],
+                }
+                return response
 
             # Warn about large temperature differences
             temp_diff = abs(current_temperature - corrected_temperature)
@@ -197,15 +197,17 @@ class ThermostatService:
                 "corrected_temperature": corrected_temperature,
             }
 
-            response = self.api_client.post(
-                ApiEndpoints.TRUE_TEMPERATURE, json_data=payload
+            response = self.api_client.post_typed(
+                ApiEndpoints.TRUE_TEMPERATURE,
+                TrueTemperatureResponse,
+                json_data=payload
             )
 
             logger.info(
                 f"Set temperature for room {room_id} to {corrected_temperature}°C"
             )
 
-            return cast(TrueTemperatureResponse, response)
+            return response
 
         except (KeyError, IndexError) as e:
             logger.error(f"Error parsing home status: {e}")

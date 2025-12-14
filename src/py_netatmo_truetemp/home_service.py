@@ -1,6 +1,6 @@
 """Home operations and status management."""
 
-from typing import Any, cast
+from typing import Any
 
 from .api_client import NetatmoApiClient
 from .constants import ApiEndpoints
@@ -37,9 +37,8 @@ class HomeService:
         if gateways_types is not None:
             parameters["gateways_types"] = gateways_types
 
-        return cast(
-            HomesDataResponse,
-            self.api_client.get(ApiEndpoints.HOMES_DATA, params=parameters),
+        return self.api_client.get_typed(
+            ApiEndpoints.HOMES_DATA, HomesDataResponse, params=parameters
         )
 
     def get_home_status(
@@ -66,9 +65,8 @@ class HomeService:
         if device_types is not None:
             parameters["device_types"] = device_types
 
-        return cast(
-            HomeStatusResponse,
-            self.api_client.get(ApiEndpoints.HOME_STATUS, params=parameters),
+        return self.api_client.get_typed(
+            ApiEndpoints.HOME_STATUS, HomeStatusResponse, params=parameters
         )
 
     def get_default_home_id(self) -> str:

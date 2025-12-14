@@ -1,6 +1,6 @@
 """HTTP client for Netatmo API with automatic authentication and retry."""
 
-from typing import Any, Callable
+from typing import Any, Callable, TypeVar
 
 import requests
 
@@ -9,6 +9,9 @@ from .exceptions import ApiError
 from .logger import setup_logger
 
 logger = setup_logger(__name__)
+
+# TypeVar for generic response types
+T = TypeVar("T")
 
 
 class NetatmoApiClient:
@@ -102,6 +105,27 @@ class NetatmoApiClient:
         url = f"{self.endpoint}{path}"
         return self._authenticated_request(self.session.get, url, path, params=params)
 
+    def get_typed(
+        self, path: str, response_type: type[T], params: dict | None = None
+    ) -> T:
+        """Sends GET request to API and returns typed response.
+
+        Args:
+            path: API endpoint path
+            response_type: The expected response type (e.g., HomesDataResponse)
+            params: Query parameters
+
+        Returns:
+            Response data typed as T
+
+        Raises:
+            ApiError: If the API request fails
+        """
+        result = self.get(path, params)
+        # The type checker will trust this cast since we're explicitly
+        # declaring the return type through the response_type parameter
+        return result  # type: ignore[return-value]
+
     def post(
         self, path: str, params: dict | None = None, json_data: dict | None = None
     ) -> dict[str, Any]:
@@ -126,3 +150,29 @@ class NetatmoApiClient:
 
         logger.debug(f"  POST {path} response received")
         return response
+
+    def post_typed(
+        self,
+        path: str,
+        response_type: type[T],
+        params: dict | None = None,
+        json_data: dict | None = None,
+    ) -> T:
+        """Sends POST request to API and returns typed response.
+
+        Args:
+            path: API endpoint path
+            response_type: The expected response type (e.g., TrueTemperatureResponse)
+            params: Query parameters
+            json_data: JSON body data
+
+        Returns:
+            Response data typed as T
+
+        Raises:
+            ApiError: If the API request fails
+        """
+        result = self.post(path, params, json_data)
+        # The type checker will trust this cast since we're explicitly
+        # declaring the return type through the response_type parameter
+        return result  # type: ignore[return-value]
