@@ -1,11 +1,13 @@
 """Thermostat operations and temperature control."""
 
+from typing import cast
+
 from .api_client import NetatmoApiClient
 from .constants import ApiEndpoints
 from .exceptions import ApiError, RoomNotFoundError
 from .home_service import HomeService
 from .logger import setup_logger
-from .types import TrueTemperatureResponse
+from .types import HomeStatus, TrueTemperatureResponse
 from .validators import (
     validate_home_id,
     validate_room_id,
@@ -76,7 +78,7 @@ class ThermostatService:
                         )
                     break
 
-            home = status_response["body"]["home"]
+            home: HomeStatus = status_response["body"]["home"]
             rooms = home["rooms"]
 
             if not rooms:
@@ -171,10 +173,13 @@ class ThermostatService:
                     f"Room {room_name} temperature already at target "
                     f"({current_temperature}°C), skipping API call"
                 )
-                return {
-                    "status": "ok",
-                    "time_server": status_response.get("time_server"),
-                }
+                return cast(
+                    TrueTemperatureResponse,
+                    {
+                        "status": "ok",
+                        "time_server": status_response["time_server"],
+                    },
+                )
 
             # Warn about large temperature differences
             temp_diff = abs(current_temperature - corrected_temperature)
@@ -200,7 +205,7 @@ class ThermostatService:
                 f"Set temperature for room {room_id} to {corrected_temperature}°C"
             )
 
-            return response
+            return cast(TrueTemperatureResponse, response)
 
         except (KeyError, IndexError) as e:
             logger.error(f"Error parsing home status: {e}")
