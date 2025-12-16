@@ -21,7 +21,7 @@ uv venv
 
 ### 2. Install Dependencies
 
-This will install the parent package as an editable dependency along with CLI dependencies (Click, Rich):
+This will install the parent package as an editable dependency along with CLI dependencies (Typer, Rich):
 
 ```bash
 uv sync
@@ -64,7 +64,7 @@ The CLI demonstrates best practices with a clean, modular architecture:
 ### Module Organization
 
 **`cli.py`** - Application entry point:
-- Click command group definition (`list-rooms`, `set-temperature`)
+- Typer app definition (`list-rooms`, `set-truetemperature`)
 - Command routing and parameter handling
 - Delegates to helper and display modules
 
@@ -86,7 +86,7 @@ The CLI demonstrates best practices with a clean, modular architecture:
 - **Dependency injection**: Clean separation of concerns with injected dependencies
 - **Decorator pattern**: Error handling applied consistently via `@handle_api_errors`
 - **Modular design**: CLI, business logic, and presentation cleanly separated
-- **Click CLI framework**: Modern Python CLI with type-safe arguments and validation
+- **Typer CLI framework**: Modern Python CLI with type-safe arguments and automatic help generation
 - **Rich formatting**: Beautiful terminal output with tables, panels, and spinners
 
 ## Development
@@ -112,6 +112,6 @@ python -m py_compile ../src/py_netatmo_truetemp/*.py
 - `cli.py` - CLI entry point with command definitions
 - `helpers.py` - Helper functions (API init, error handling, validation)
 - `display.py` - Display formatting with Rich library
-- `pyproject.toml` - Example dependencies (Click, Rich)
+- `pyproject.toml` - Example dependencies (Typer, Rich)
 - `README.md` - This file
 - `CLAUDE.md` - Detailed development workflow and architecture guide

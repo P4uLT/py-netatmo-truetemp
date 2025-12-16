@@ -3,23 +3,37 @@
 [![CI](https://github.com/P4uLT/py-netatmo-truetemp/actions/workflows/ci.yml/badge.svg)](https://github.com/P4uLT/py-netatmo-truetemp/actions/workflows/ci.yml)
 [![Python 3.13+](https://img.shields.io/badge/python-3.13+-blue.svg)](https://www.python.org/downloads/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![codecov](https://codecov.io/gh/P4uLT/py-netatmo-truetemp/branch/main/graph/badge.svg)](https://codecov.io/gh/P4uLT/py-netatmo-truetemp)
 [![Code style: ruff](https://img.shields.io/badge/code%20style-ruff-000000.svg)](https://github.com/astral-sh/ruff)
 [![Type checked: mypy](https://img.shields.io/badge/type%20checked-mypy-blue.svg)](https://mypy-lang.org/)
 [![Security: bandit](https://img.shields.io/badge/security-bandit-yellow.svg)](https://github.com/PyCQA/bandit)
 
 A Python client for the Netatmo API with **truetemperature** control - set room temperatures programmatically via the undocumented API endpoint.
 
+## ⚠️ Disclaimer
+
+**Unofficial Project**: This is an independent, community-developed library and is **not affiliated with, endorsed by, or supported by Netatmo or Legrand**.
+
+**Why This Exists**: The official Netatmo OAuth API does not currently support programmatic temperature adjustments via the `truetemperature` endpoint. This library fills that gap using reverse-engineered API endpoints.
+
+**Archival Policy**: This repository will be archived or removed if:
+- Netatmo officially adds temperature control support to their OAuth API
+- Netatmo requests takedown of this project
+
+**Use at Your Own Risk**: This library relies on undocumented endpoints that may change without notice. Functionality could break if Netatmo modifies their internal API.
+
 ## Features
 
 - **TrueTemperature API**: Set room temperatures via Netatmo's undocumented endpoint
 - **Room Management**: List and lookup rooms by name (case-insensitive) or ID
 - **Smart Updates**: Skips API call if temperature already at target (0.1°C tolerance)
-- **Secure**: JSON-based cookie storage with proper file permissions (0o600)
+- **Automatic Authentication**: Cookie-based session management with secure storage (0o600)
+- **Auto-Retry**: Automatically recovers from authentication failures and API errors
 - **Type-Safe**: Full type hints with TypedDict definitions for API responses (Python 3.13+)
-- **Thread-Safe**: Thread-safe authentication with session locking
-- **Modular**: Components can be used independently via dependency injection
-- **Extensible**: Easy to add new functionality following SOLID principles
-- **Production-Ready**: Comprehensive error handling, auto-retry, and logging
+- **Thread-Safe**: Safe to use in multi-threaded applications
+- **Simple API**: Easy-to-use facade with sensible defaults
+- **Extensible**: Modular components for advanced customization
+- **Production-Ready**: Comprehensive error handling and logging
 
 ## Installation
 
@@ -85,24 +99,62 @@ api.set_truetemperature(
 )
 ```
 
-## Architecture
+## Common Use Cases
 
-The codebase uses a layered architecture with dependency injection following SOLID principles:
+### Set Temperature by Room Name
 
+```python
+from py_netatmo_truetemp import NetatmoAPI
+import os
+
+api = NetatmoAPI(
+    username=os.environ['NETATMO_USERNAME'],
+    password=os.environ['NETATMO_PASSWORD']
+)
+
+# Get all rooms
+rooms = api.list_thermostat_rooms()
+living_room = next(r for r in rooms if r['name'].lower() == 'living room')
+
+# Set temperature
+api.set_truetemperature(
+    room_id=living_room['id'],
+    corrected_temperature=20.5
+)
 ```
-NetatmoAPI (Facade)
-   ├── CookieStore        - Cookie persistence (JSON, 0o600 permissions)
-   ├── AuthManager        - Authentication flow (thread-safe with locking)
-   ├── ApiClient          - HTTP communication (auto-retry on 403)
-   ├── HomeService        - Home operations (homesdata, homestatus)
-   └── ThermostatService  - Thermostat operations (list rooms, set temperature)
+
+### Monitor All Room Temperatures
+
+```python
+status = api.homestatus()
+for room in status['body']['home']['rooms']:
+    temp = room.get('therm_measured_temperature')
+    if temp:
+        print(f"Room {room['id']}: {temp}°C")
 ```
 
-**Key Design Principles:**
-- **Dependency Injection**: All components receive dependencies via constructors
-- **Single Responsibility**: Each component has one reason to change
-- **Type Safety**: TypedDict definitions for all API responses (see `types.py`)
-- **Thread Safety**: Session management protected with locks
+### Custom Cookie Location
+
+```python
+api = NetatmoAPI(
+    username=os.environ['NETATMO_USERNAME'],
+    password=os.environ['NETATMO_PASSWORD'],
+    cookies_file="/secure/path/cookies.json"
+)
+```
+
+## How It Works
+
+The library provides a simple `NetatmoAPI` facade that handles all the complexity:
+
+- **Automatic Authentication**: Cookie-based session management with secure storage (0o600 permissions)
+- **Smart API Calls**: Auto-retry on authentication failures, skips redundant temperature updates
+- **Type-Safe Responses**: Fully typed API responses for better IDE support and error prevention
+- **Thread-Safe Operations**: Safe to use in multi-threaded applications with session locking
+
+For advanced usage, you can access individual components directly (see [Advanced Usage](#advanced-usage) below).
+
+For complete architectural details and SOLID design principles, see [CLAUDE.md](CLAUDE.md).
 
 ## Advanced Usage
 
@@ -164,7 +216,7 @@ examples/                     # Example applications (independent)
    ├── cli.py                 # CLI entry point
    ├── helpers.py             # Helper functions (API init, error handling)
    ├── display.py             # Display formatting (Rich library)
-   ├── pyproject.toml         # Examples dependencies (Click, Rich)
+   ├── pyproject.toml         # Examples dependencies (Typer, Rich)
    ├── Taskfile.yml           # Task runner configuration
    ├── .venv/                 # Isolated virtual environment
    └── README.md              # CLI setup and usage
@@ -217,6 +269,6 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ## Acknowledgments
 
-- Built with clean architecture principles and SOLID design
-- Uses modern Python 3.13+ features and type hints
-- Inspired by the need for programmatic thermostat control
+- Uses modern Python 3.13+ features and comprehensive type hints
+- Built with clean architecture patterns for maintainability (see [CLAUDE.md](CLAUDE.md))
+- Inspired by the need for programmatic Netatmo thermostat control
