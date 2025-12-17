@@ -70,14 +70,14 @@ packages = ["src/py_netatmo_truetemp"]
 name = "cz_conventional_commits"
 version = "0.1.0"
 version_files = [
-    "pyproject.toml:version",
+    "pyproject.toml:project.version",
+    "pyproject.toml:tool.commitizen.version",
     "src/py_netatmo_truetemp/__init__.py:__version__",
 ]
 tag_format = "v$version"
 update_changelog_on_bump = true
 changelog_file = "CHANGELOG.md"
 changelog_merge_prerelease = true
-changelog_start_rev = "HEAD"
 style = [
     ["qmark", "fg:#ff9d00 bold"],
     ["question", "bold"],
