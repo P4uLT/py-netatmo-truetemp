@@ -1,30 +1,37 @@
 # Release Process
 
-This document outlines the process for releasing py-netatmo-truetemp to PyPI.
+This document outlines the **automated release process** for py-netatmo-truetemp using **Commitizen** and **PyPI Trusted Publishing**.
+
+## Overview
+
+Releases are semi-automated:
+1. **Manual trigger**: Run `cz bump --changelog` when ready to release
+2. **Automatic publishing**: GitHub Actions publishes to PyPI when you push the git tag
+3. **Changelog generation**: Commitizen automatically updates CHANGELOG.md from conventional commits
 
 ## Prerequisites
 
-Before publishing to PyPI, ensure:
+Before your first release:
 
-1. All CI checks pass
-2. Test coverage > 90%
-3. All documentation is up to date
-4. CHANGELOG.md has been updated with release notes
-5. Version number follows semantic versioning
+1. ✅ All CI checks pass
+2. ✅ Test coverage > 90%
+3. ✅ All documentation is up to date
+4. ✅ Conventional commits enforced via pre-commit hook
+5. ✅ PyPI Trusted Publishing configured (see First-Time Setup below)
 
 ## Semantic Versioning
 
 We follow [Semantic Versioning 2.0.0](https://semver.org/):
 
-- **MAJOR** version (X.0.0): Incompatible API changes
-- **MINOR** version (0.X.0): New functionality (backwards-compatible)
-- **PATCH** version (0.0.X): Bug fixes (backwards-compatible)
+- **MAJOR** version (X.0.0): Incompatible API changes (use `feat!:` or `BREAKING CHANGE:` in commits)
+- **MINOR** version (0.X.0): New functionality, backwards-compatible (use `feat:` commits)
+- **PATCH** version (0.0.X): Bug fixes, backwards-compatible (use `fix:` commits)
 
 For pre-1.0.0 releases:
 - 0.1.0 -> 0.2.0: Minor breaking changes are acceptable
 - 0.1.0 -> 0.1.1: Bug fixes and minor features
 
-## Release Checklist
+## Quick Release (Automated Workflow)
 
 ### 1. Pre-Release Validation
 
@@ -34,7 +41,7 @@ git status
 
 # Update from main
 git checkout main
-git pull origin main
+git pull
 
 # Run full test suite
 uv run pytest tests/ -v --cov=src/py_netatmo_truetemp --cov-report=term-missing
@@ -44,285 +51,243 @@ uv run ruff format --check src/ tests/
 uv run ruff check src/ tests/
 uv run mypy src/py_netatmo_truetemp/
 uv run bandit -r src/py_netatmo_truetemp/ -ll
-
-# Validate package imports
-uv run python -c "from py_netatmo_truetemp import NetatmoAPI; print('✓ Imports validated')"
 ```
 
-### 2. Update Version and Changelog
+### 2. Bump Version and Generate Changelog
+
+Commitizen handles version bumping and changelog updates automatically:
 
 ```bash
-# Edit pyproject.toml version (e.g., 0.1.0 -> 0.2.0)
-# Update CHANGELOG.md:
-# - Move unreleased items to new version section
-# - Add release date
-# - Update comparison links at bottom
+# Automatic bump (analyzes commits, determines version)
+cz bump --changelog
+
+# Or specify increment manually
+cz bump --changelog --increment PATCH   # 0.1.0 -> 0.1.1
+cz bump --changelog --increment MINOR   # 0.1.0 -> 0.2.0
+cz bump --changelog --increment MAJOR   # 0.1.0 -> 1.0.0
+
+# Dry run (see what would change)
+cz bump --changelog --dry-run
 ```
 
-Example CHANGELOG.md update:
-```markdown
-## [0.2.0] - 2024-12-15
+**What `cz bump` does:**
+- Analyzes commit messages since last release
+- Determines version increment based on conventional commits
+- Updates `pyproject.toml` version
+- Updates `src/py_netatmo_truetemp/__init__.py __version__`
+- Generates changelog entry in `CHANGELOG.md`
+- Creates git commit: `chore: bump version to X.Y.Z`
+- Creates git tag: `vX.Y.Z`
 
-### Added
-- New camera service for security camera integration
-- Support for custom authentication providers
-
-### Changed
-- Improved error messages for authentication failures
-
-### Fixed
-- Cookie storage race condition on Windows
-
-[0.2.0]: https://github.com/P4uLT/py-netatmo-truetemp/compare/v0.1.0...v0.2.0
-```
-
-### 3. Test Build Locally
+### 3. Push to Trigger Automated Release
 
 ```bash
-# Build the package
-uv build
+# Review changes before pushing
+git show HEAD
+cat CHANGELOG.md
 
-# Inspect the built files
-ls -lh dist/
+# Push commit and tag (triggers GitHub Actions)
+git push && git push --tags
 
-# Check package metadata
-uv run twine check dist/*
+# Monitor GitHub Actions
+# Go to: https://github.com/P4uLT/py-netatmo-truetemp/actions
+```
 
-# Test installation in isolated environment
-uv venv test-install-env
-uv pip install --python test-install-env dist/*.whl
-uv run --python test-install-env python -c "from py_netatmo_truetemp import NetatmoAPI; print('✓ Package installed successfully')"
+**What happens automatically:**
+1. GitHub Actions workflow (`publish.yml`) triggers on tag push
+2. Builds package with `uv build`
+3. Validates with `twine check`
+4. Publishes to PyPI via Trusted Publishing (no tokens needed!)
+
+### 4. Create GitHub Release
+
+```bash
+# Go to releases page
+open https://github.com/P4uLT/py-netatmo-truetemp/releases/new
+
+# Or use GitHub CLI
+gh release create v0.2.0 \
+  --title "v0.2.0" \
+  --notes "$(git tag -l --format='%(contents)' v0.2.0)" \
+  --verify-tag
+```
+
+**Manual steps:**
+- Select the new tag
+- Copy changelog entry for release notes
+- Publish release
+
+### 5. Verify Release
+
+```bash
+# Wait 1-2 minutes for PyPI to index
+
+# Test installation
+uv venv verify-release
+uv pip install --python verify-release py-netatmo-truetemp
+
+# Verify version
+uv run --python verify-release python -c "import py_netatmo_truetemp; print(py_netatmo_truetemp.__version__)"
 
 # Clean up
-rm -rf test-install-env
+rm -rf verify-release
 ```
 
-### 4. Commit Release Changes
+That's it! Three simple steps:
+1. `cz bump --changelog`
+2. `git push && git push --tags`
+3. Create GitHub Release (optional but recommended)
+
+## First-Time Setup
+
+### Step 1: Manual First Release to Create PyPI Project
+
+**Why:** PyPI Trusted Publishing requires the project to exist first. The first release must be manual.
 
 ```bash
-# Commit version bump and changelog
-git add pyproject.toml CHANGELOG.md
-git commit -m "chore: bump version to 0.2.0"
-git push origin main
-```
-
-### 5. Test PyPI Release (Recommended First Time)
-
-```bash
-# Build clean package
-rm -rf dist/
+# Build package
 uv build
 
-# Upload to Test PyPI
+# Option A: Test on TestPyPI first (recommended)
 uv run twine upload --repository testpypi dist/*
 
-# Test installation from Test PyPI
-uv venv test-pypi-install
-uv pip install --python test-pypi-install \
+# Verify TestPyPI installation
+uv venv test-install
+uv pip install --python test-install \
     --index-url https://test.pypi.org/simple/ \
     --extra-index-url https://pypi.org/simple/ \
     py-netatmo-truetemp
+rm -rf test-install
 
-# Verify it works
-uv run --python test-pypi-install python -c "from py_netatmo_truetemp import NetatmoAPI; print('✓ TestPyPI package works')"
-
-# Clean up
-rm -rf test-pypi-install
+# Option B: Upload directly to production PyPI
+uv run twine upload dist/*
 ```
 
-**Note**: Test PyPI credentials needed. Configure in `~/.pypirc`:
+**Configure credentials in `~/.pypirc`:**
 ```ini
 [distutils]
 index-servers =
     pypi
     testpypi
 
+[pypi]
+username = __token__
+password = pypi-AgEIcHlwaS5vcmc...  # Your PyPI API token
+
 [testpypi]
 repository = https://test.pypi.org/legacy/
 username = __token__
-password = pypi-...  # Your Test PyPI token
+password = pypi-AgENdGVzdC5weXBpLm9yZw...  # Your Test PyPI token
 ```
 
-### 6. Create Git Tag
+**Get API tokens:**
+- PyPI: https://pypi.org/manage/account/token/
+- Test PyPI: https://test.pypi.org/manage/account/token/
 
-```bash
-# Create annotated tag
-git tag -a v0.2.0 -m "Release version 0.2.0"
+### Step 2: Configure PyPI Trusted Publishing
 
-# Push tag to GitHub
-git push origin v0.2.0
-```
+After the first manual release:
 
-### 7. Create GitHub Release
+1. Go to PyPI project settings:
+   - https://pypi.org/manage/project/py-netatmo-truetemp/settings/publishing/
 
-Go to https://github.com/P4uLT/py-netatmo-truetemp/releases/new
-
-- **Tag**: Select `v0.2.0`
-- **Release title**: `v0.2.0`
-- **Description**: Copy from CHANGELOG.md for this version
-- **Attachments**: Upload `dist/*.whl` and `dist/*.tar.gz`
-- Click "Publish release"
-
-### 8. Publish to PyPI
-
-```bash
-# Build clean package (if not already done)
-rm -rf dist/
-uv build
-
-# Upload to PyPI
-uv run twine upload dist/*
-```
-
-PyPI credentials needed. Configure in `~/.pypirc`:
-```ini
-[pypi]
-username = __token__
-password = pypi-...  # Your PyPI token
-```
-
-**Or use trusted publishing** (recommended):
-1. Configure GitHub Actions workflow (see below)
-2. Set up trusted publisher on PyPI
-3. Releases publish automatically on tag creation
-
-### 9. Verify PyPI Release
-
-```bash
-# Wait a few minutes for PyPI to index
-
-# Install from PyPI
-uv venv verify-pypi
-uv pip install --python verify-pypi py-netatmo-truetemp
-
-# Test installation
-uv run --python verify-pypi python -c "from py_netatmo_truetemp import NetatmoAPI; print('✓ PyPI package works')"
-
-# Clean up
-rm -rf verify-pypi
-```
-
-### 10. Post-Release
-
-- Update README.md installation instructions (remove "from GitHub" note)
-- Announce release (GitHub Discussions, social media, etc.)
-- Monitor issues for any release-related problems
-- Start new "Unreleased" section in CHANGELOG.md
-
-## Automated Release with GitHub Actions (Future)
-
-Once you're comfortable with the manual process, you can automate with GitHub Actions.
-
-### Setup Trusted Publishing
-
-1. Go to PyPI project settings: https://pypi.org/manage/project/py-netatmo-truetemp/settings/
-2. Add a new trusted publisher:
+2. Add trusted publisher:
    - **PyPI project name**: `py-netatmo-truetemp`
-   - **GitHub repository**: `P4uLT/py-netatmo-truetemp`
+   - **Owner**: `P4uLT`
+   - **Repository name**: `py-netatmo-truetemp`
    - **Workflow name**: `publish.yml`
-   - **Environment name**: `pypi`
+   - **Environment name**: `release`
 
-3. Create `.github/workflows/publish.yml`:
+3. Save changes
 
-```yaml
-name: Publish to PyPI
+### Step 3: Create GitHub Environment
 
-on:
-  release:
-    types: [published]
+1. Go to repository settings:
+   - https://github.com/P4uLT/py-netatmo-truetemp/settings/environments
 
-permissions:
-  contents: read
-  id-token: write
+2. Create environment named `release`
+   - Optional: Add protection rules (require reviews)
+   - Optional: Add deployment branches (only `main`)
 
-jobs:
-  build:
-    name: Build Distribution
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
-        with:
-          python-version: "3.13"
-      - uses: astral-sh/setup-uv@v5
-      - run: uv build
-      - uses: actions/upload-artifact@v4
-        with:
-          name: python-package-distributions
-          path: dist/
+### Step 4: Test Automated Release
 
-  publish-to-pypi:
-    name: Publish to PyPI
-    needs: [build]
-    runs-on: ubuntu-latest
-    environment:
-      name: pypi
-      url: https://pypi.org/p/py-netatmo-truetemp
-    steps:
-      - uses: actions/download-artifact@v4
-        with:
-          name: python-package-distributions
-          path: dist/
-      - name: Publish to PyPI
-        uses: pypa/gh-action-pypi-publish@release/v1
+```bash
+# Create a test feature commit
+git commit --allow-empty -m "feat: test automated release"
+git push
+
+# Trigger release
+cz bump --changelog
+git push && git push --tags
+
+# Watch GitHub Actions
+gh run watch
 ```
 
-### Automated Release Process
+## Commit Message Guidelines
 
-With GitHub Actions configured:
+Commitizen enforces conventional commits via pre-commit hook. Format:
 
-1. Update version in `pyproject.toml`
-2. Update `CHANGELOG.md`
-3. Commit and push to main
-4. Create and push git tag: `git tag v0.2.0 && git push origin v0.2.0`
-5. Create GitHub release from tag
-6. GitHub Actions automatically builds and publishes to PyPI
+```
+<type>(<scope>): <subject>
 
-## Version Management Tools
+<body>
 
-Consider using a version management tool to automate version bumping:
-
-### Option 1: Manual (current approach)
-- Edit `pyproject.toml` version manually
-- Full control, simple
-
-### Option 2: hatch version
-```bash
-# Already using hatchling as build backend
-uv run hatch version patch  # 0.1.0 -> 0.1.1
-uv run hatch version minor  # 0.1.0 -> 0.2.0
-uv run hatch version major  # 0.1.0 -> 1.0.0
+<footer>
 ```
 
-### Option 3: bump-my-version
+**Types that affect versioning:**
+- `feat:` → MINOR version bump (new feature)
+- `fix:` → PATCH version bump (bug fix)
+- `feat!:` or `BREAKING CHANGE:` → MAJOR version bump
+
+**Other types (no version bump):**
+- `chore:` → Maintenance tasks
+- `docs:` → Documentation changes
+- `test:` → Test additions/changes
+- `refactor:` → Code restructuring
+- `style:` → Formatting changes
+- `ci:` → CI/CD changes
+- `perf:` → Performance improvements
+
+**Examples:**
 ```bash
-# Install
-uv add --dev bump-my-version
+# Minor version bump
+git commit -m "feat: add camera service for security camera integration"
 
-# Configure in pyproject.toml
-[tool.bumpversion]
-current_version = "0.1.0"
-parse = "(?P<major>\\d+)\\.(?P<minor>\\d+)\\.(?P<patch>\\d+)"
-serialize = ["{major}.{minor}.{patch}"]
-search = "{current_version}"
-replace = "{new_version}"
-regex = false
-ignore_missing_version = false
-tag = true
-sign_tags = false
-tag_name = "v{new_version}"
-tag_message = "Bump version: {current_version} → {new_version}"
-allow_dirty = false
-commit = true
-message = "chore: bump version to {new_version}"
+# Patch version bump
+git commit -m "fix: resolve authentication retry loop"
 
-[[tool.bumpversion.files]]
-filename = "pyproject.toml"
-search = 'version = "{current_version}"'
-replace = 'version = "{new_version}"'
+# Major version bump (breaking change)
+git commit -m "feat!: remove deprecated cookie_store parameter"
 
-# Usage
-bump-my-version bump patch  # Updates pyproject.toml, creates commit & tag
+# With scope
+git commit -m "feat(auth): add support for OAuth2 authentication"
+
+# With body and footer
+git commit -m "feat: add room scheduling
+
+Allows users to schedule temperature changes for specific times.
+
+Closes #42"
+```
+
+**Interactive commit helper:**
+```bash
+# Use Commitizen CLI for guided commit messages
+cz commit
+```
+
+## Advanced: Manual Version Override
+
+If you need to set a specific version (e.g., for major milestones):
+
+```bash
+# Set exact version
+cz bump --changelog --version 1.0.0
+
+# Pre-release versions
+cz bump --changelog --version 1.0.0-beta.1
 ```
 
 ## Troubleshooting

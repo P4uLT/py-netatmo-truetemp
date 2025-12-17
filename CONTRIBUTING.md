@@ -204,14 +204,130 @@ def test_set_temperature_success(mock_api_client, thermostat_service):
 
 ## Commit Message Guidelines
 
-Follow [Conventional Commits](https://www.conventionalcommits.org/):
+This project **enforces** [Conventional Commits](https://www.conventionalcommits.org/) via pre-commit hook.
 
-- `feat: add new thermostat feature`
-- `fix: resolve authentication retry loop`
-- `docs: update README installation instructions`
-- `test: add coverage for cookie storage`
-- `refactor: simplify temperature validation`
-- `chore: update dependencies`
+### Commit Message Format
+
+```
+<type>(<scope>): <subject>
+
+<body>
+
+<footer>
+```
+
+**Required:** `<type>: <subject>`
+
+**Optional:** `(<scope>)`, `<body>`, `<footer>`
+
+### Commit Types
+
+**Types that affect versioning (semantic versioning):**
+- `feat:` → New feature (MINOR version bump: 0.1.0 → 0.2.0)
+- `fix:` → Bug fix (PATCH version bump: 0.1.0 → 0.1.1)
+- `feat!:` or `BREAKING CHANGE:` → Breaking change (MAJOR version bump: 0.1.0 → 1.0.0)
+
+**Other types (no version bump):**
+- `chore:` → Maintenance tasks, dependency updates
+- `docs:` → Documentation changes
+- `test:` → Test additions or modifications
+- `refactor:` → Code restructuring without behavior change
+- `style:` → Code formatting, whitespace changes
+- `ci:` → CI/CD configuration changes
+- `perf:` → Performance improvements
+- `build:` → Build system changes
+
+### Examples
+
+```bash
+# Simple feature commit
+git commit -m "feat: add new thermostat feature"
+
+# Bug fix with scope
+git commit -m "fix(auth): resolve authentication retry loop"
+
+# Documentation update
+git commit -m "docs: update README installation instructions"
+
+# Breaking change (major version bump)
+git commit -m "feat!: remove deprecated cookie_store parameter"
+
+# With detailed body and footer
+git commit -m "feat: add room scheduling
+
+Allows users to schedule temperature changes for specific times.
+Includes new API endpoints for creating and managing schedules.
+
+Closes #42
+Refs #15"
+```
+
+### Interactive Commit Helper
+
+If you're unsure about the format, use the interactive commit helper:
+
+```bash
+# Guided commit message creation
+uv run cz commit
+
+# Or shorter alias
+uv run cz c
+```
+
+This will prompt you step-by-step to create a properly formatted commit message.
+
+### Pre-commit Enforcement
+
+The pre-commit hook automatically validates commit messages. Invalid commits will be rejected:
+
+```bash
+# This will fail
+git commit -m "bad commit message"
+# Error: Commit message does not follow Conventional Commits format
+
+# This will succeed
+git commit -m "feat: add new feature"
+```
+
+### Bypassing the Hook (Emergency Only)
+
+In rare cases where you need to bypass validation:
+
+```bash
+git commit -m "emergency fix" --no-verify
+```
+
+**Warning:** Only use `--no-verify` for emergency hotfixes. All commits should follow conventional format.
+
+### Commit Message Best Practices
+
+1. **Use imperative mood**: "add feature" not "added feature"
+2. **Be concise**: Subject line should be ≤ 72 characters
+3. **Explain why, not what**: The diff shows what changed; explain why in the body
+4. **Reference issues**: Use `Closes #123` or `Refs #456` in footer
+5. **Break down changes**: One logical change per commit
+
+### Scope Examples
+
+Scopes are optional but help organize changes:
+
+```bash
+feat(api): add new endpoint
+fix(auth): resolve token refresh issue
+docs(readme): update installation steps
+test(thermostat): add integration tests
+chore(deps): update dependencies
+```
+
+Common scopes in this project:
+- `api` - API client changes
+- `auth` - Authentication and token management
+- `thermostat` - Thermostat service
+- `home` - Home service
+- `cookie` - Cookie storage
+- `cli` - CLI example application
+- `deps` - Dependencies
+- `ci` - CI/CD workflows
 
 ## Project Structure
 
