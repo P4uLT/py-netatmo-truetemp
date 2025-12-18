@@ -217,7 +217,6 @@ examples/                     # Example applications (independent)
    ├── helpers.py             # Helper functions (API init, error handling)
    ├── display.py             # Display formatting (Rich library)
    ├── pyproject.toml         # Examples dependencies (Typer, Rich)
-   ├── Taskfile.yml           # Task runner configuration
    ├── .venv/                 # Isolated virtual environment
    └── README.md              # CLI setup and usage
 ```
@@ -237,25 +236,31 @@ The `examples/` folder contains independent applications for testing library cha
 
 ### Release Automation
 
-This project uses automated releases with commitizen and GitHub Actions. The release workflow is fully automated:
+This project uses **semantic-release** for fully automated releases. All versioning, changelog generation, and publishing happens automatically in CI when you push to the main branch.
 
+**Quick workflow:**
 ```bash
-# View available release commands
-task help
+# 1. Make changes with conventional commits
+git commit -m "feat: add new feature"
+git commit -m "fix: resolve bug"
 
-# Create a new release (automated version bump + changelog + git tag)
-task release
+# 2. Push to main - automatic release happens
+git push origin main
 
-# Manual version operations
-task version:bump-patch    # 0.1.0 -> 0.1.1
-task version:bump-minor    # 0.1.0 -> 0.2.0
-task version:bump-major    # 0.1.0 -> 1.0.0
+# GitHub Actions automatically:
+# - Analyzes conventional commits
+# - Determines version bump (major/minor/patch)
+# - Updates version in pyproject.toml and __init__.py
+# - Generates and updates CHANGELOG.md
+# - Creates git tag with verified signature
+# - Creates GitHub Release
+# - Publishes to PyPI
 ```
 
 All commits must follow [Conventional Commits](https://www.conventionalcommits.org/) format:
-- `feat:` - New features (minor version bump)
-- `fix:` - Bug fixes (patch version bump)
-- `feat!:` or `BREAKING CHANGE:` - Breaking changes (major version bump)
+- `feat:` - New features (minor version bump: 0.1.0 → 0.2.0)
+- `fix:` - Bug fixes (patch version bump: 0.1.0 → 0.1.1)
+- `feat!:` or `BREAKING CHANGE:` - Breaking changes (major version bump: 0.1.0 → 1.0.0)
 
 Pre-commit hooks enforce commit message validation. For complete release workflow documentation, see [RELEASE_WORKFLOW_GUIDE.md](RELEASE_WORKFLOW_GUIDE.md).
 

@@ -13,7 +13,7 @@ jobs:
   release:
     name: Create Release
     runs-on: ubuntu-latest
-    if: "!startsWith(github.event.head_commit.message, 'bump:')"
+    if: "!contains(github.event.head_commit.message, '[skip ci]')"
     concurrency:
       group: ${{ github.workflow }}-${{ github.ref }}
       cancel-in-progress: true
@@ -47,43 +47,18 @@ jobs:
       - name: Install dependencies
         run: uv sync --frozen
 
-      - name: Create bump and changelog
-        id: cz
-        uses: commitizen-tools/commitizen-action@master
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
         with:
-          github_token: ${{ steps.app-token.outputs.token }}
-          push: true
-          branch: main
-          changelog: true
-          gpg_sign: true
-          git_name: "py-netatmo-truetemp-release-bot[bot]"
-          git_email: "py-netatmo-truetemp-release-bot[bot]@users.noreply.github.com"
+          node-version: 20
 
-      - name: Extract changelog for release
-        if: steps.cz.outputs.version != ''
-        id: changelog
-        run: |
-          VERSION="${{ steps.cz.outputs.version }}"
-
-          CHANGELOG=$(awk '/^## '\"$VERSION\"'/,/^## [0-9]/' CHANGELOG.md | sed '$d' | tail -n +2)
-
-          if [ -z "$CHANGELOG" ]; then
-            CHANGELOG="Release version $VERSION"
-          fi
-
-          {
-            echo 'content<<EOF'
-            echo "$CHANGELOG"
-            echo EOF
-          } >> $GITHUB_OUTPUT
-
-      - name: Create GitHub Release
-        if: steps.cz.outputs.version != ''
-        uses: ncipollo/release-action@v1
+      - name: Semantic Release
+        uses: cycjimmy/semantic-release-action@v4
         with:
-          token: ${{ steps.app-token.outputs.token }}
-          tag: v${{ steps.cz.outputs.version }}
-          name: Release v${{ steps.cz.outputs.version }}
-          body: ${{ steps.changelog.outputs.content }}
-          draft: false
-          prerelease: false
+          extra_plugins: |
+            @semantic-release/changelog
+            @semantic-release/git
+            @semantic-release/exec
+            conventional-changelog-conventionalcommits
+        env:
+          GITHUB_TOKEN: ${{ steps.app-token.outputs.token }}
