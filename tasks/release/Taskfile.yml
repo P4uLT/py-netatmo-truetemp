@@ -1,6 +1,18 @@
 version: '3'
 
 tasks:
+  check-ready:
+    desc: "Check if ready for release"
+    internal: true
+    preconditions:
+      - sh: git diff --quiet
+        msg: "Working directory must be clean. Commit or stash changes first."
+      - sh: "[ $(git rev-parse --abbrev-ref HEAD) = 'main' ]"
+        msg: "Must be on main branch to create releases"
+    cmds:
+      - echo "✅ Ready for release"
+    silent: true
+
   bump:
     desc: "Create a release locally (auto version bump)"
     aliases: ["create", "new"]
@@ -11,51 +23,35 @@ tasks:
       - Updates CHANGELOG.md
       - Creates git tag
       - Does NOT push (use release:push to push)
+    deps: [check-ready]
     cmds:
       - echo "🔍 Analyzing commits for version bump..."
       - uv run cz bump --yes --changelog
       - task: show-version
-    preconditions:
-      - sh: git diff --quiet
-        msg: "Working directory must be clean. Commit or stash changes first."
-      - sh: "[ $(git rev-parse --abbrev-ref HEAD) = 'main' ]"
-        msg: "Must be on main branch to create releases"
 
   major:
     desc: "Create a major release (e.g., 0.1.0 → 1.0.0)"
+    deps: [check-ready]
     cmds:
       - echo "🚀 Creating MAJOR release..."
       - uv run cz bump --yes --changelog --increment MAJOR
       - task: show-version
-    preconditions:
-      - sh: git diff --quiet
-        msg: "Working directory must be clean"
-      - sh: "[ $(git rev-parse --abbrev-ref HEAD) = 'main' ]"
-        msg: "Must be on main branch"
 
   minor:
     desc: "Create a minor release (e.g., 0.1.0 → 0.2.0)"
+    deps: [check-ready]
     cmds:
       - echo "📦 Creating MINOR release..."
       - uv run cz bump --yes --changelog --increment MINOR
       - task: show-version
-    preconditions:
-      - sh: git diff --quiet
-        msg: "Working directory must be clean"
-      - sh: "[ $(git rev-parse --abbrev-ref HEAD) = 'main' ]"
-        msg: "Must be on main branch"
 
   patch:
     desc: "Create a patch release (e.g., 0.1.0 → 0.1.1)"
+    deps: [check-ready]
     cmds:
       - echo "🔧 Creating PATCH release..."
       - uv run cz bump --yes --changelog --increment PATCH
       - task: show-version
-    preconditions:
-      - sh: git diff --quiet
-        msg: "Working directory must be clean"
-      - sh: "[ $(git rev-parse --abbrev-ref HEAD) = 'main' ]"
-        msg: "Must be on main branch"
 
   dry-run:
     desc: "Preview what version would be released (no changes)"
@@ -94,20 +90,17 @@ tasks:
       - git push origin main
       - git push origin --tags
       - echo "✅ Pushed! GitHub Actions will create the release."
-      - echo "📍 Monitor at: https://github.com/{{.REPO}}/actions"
-    vars:
-      REPO:
-        sh: gh repo view --json nameWithOwner -q .nameWithOwner 2>/dev/null || echo "P4uLT/py-netatmo-truetemp"
+      - |
+        echo "📍 Monitor at: https://github.com/{{.GET_REPO}}/actions"
 
   show-version:
     desc: "Show the current version and next steps"
     internal: true
     cmds:
       - |
-        VERSION=$(grep -m1 'version = ' pyproject.toml | cut -d'"' -f2)
         echo ""
-        echo "✅ Current version: $VERSION"
-        echo "📝 Tag: v$VERSION"
+        echo "✅ Current version: {{.GET_VERSION}}"
+        echo "📝 Tag: v{{.GET_VERSION}}"
         echo ""
         echo "Next steps:"
         echo "  - Review changes: task git:log"

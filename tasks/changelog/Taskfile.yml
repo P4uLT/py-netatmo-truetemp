@@ -18,7 +18,8 @@ tasks:
     desc: "Show only the latest release section"
     cmds:
       - |
-        VERSION=$(git describe --tags --abbrev=0 2>/dev/null | sed 's/^v//')
+        TAG="{{.GET_LATEST_TAG}}"
+        VERSION=$(echo "$TAG" | sed 's/^v//')
         if [ -z "$VERSION" ]; then
           echo "No releases yet"
           exit 0

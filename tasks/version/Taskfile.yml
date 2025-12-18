@@ -6,8 +6,7 @@ tasks:
     aliases: ["show", "get"]
     cmds:
       - |
-        VERSION=$(grep -m1 'version = ' pyproject.toml | cut -d'"' -f2)
-        echo "Current version: v$VERSION"
+        echo "Current version: v{{.GET_VERSION}}"
 
   history:
     desc: "Show version history (last 10 releases)"
@@ -21,8 +20,12 @@ tasks:
     desc: "Show the latest release tag"
     cmds:
       - |
-        LATEST=$(git describe --tags --abbrev=0 2>/dev/null || echo "No releases yet")
-        echo "Latest release: $LATEST"
+        LATEST="{{.GET_LATEST_TAG}}"
+        if [ -z "$LATEST" ]; then
+          echo "Latest release: No releases yet"
+        else
+          echo "Latest release: $LATEST"
+        fi
 
   next:
     desc: "Predict what the next version will be"

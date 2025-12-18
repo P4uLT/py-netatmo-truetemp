@@ -12,7 +12,7 @@ tasks:
     aliases: ["unreleased-commits"]
     cmds:
       - |
-        LAST_TAG=$(git describe --tags --abbrev=0 2>/dev/null || echo "")
+        LAST_TAG="{{.GET_LATEST_TAG}}"
         if [ -z "$LAST_TAG" ]; then
           echo "No releases yet, showing all commits:"
           git log --oneline --decorate
@@ -26,7 +26,7 @@ tasks:
     aliases: ["changes", "what-changed"]
     cmds:
       - |
-        LAST_TAG=$(git describe --tags --abbrev=0 2>/dev/null || echo "")
+        LAST_TAG="{{.GET_LATEST_TAG}}"
         RANGE="${LAST_TAG:+$LAST_TAG..}HEAD"
 
         echo "📦 Unreleased changes:"
