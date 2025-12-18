@@ -39,7 +39,26 @@ export NETATMO_HOME_ID="your-home-id"  # Optional, auto-detected if omitted
 
 ## Usage
 
-### CLI Usage
+### Task Runner (Recommended)
+
+The example includes a Taskfile for convenient shortcuts:
+
+**Development tasks:**
+```bash
+task install           # Install all dependencies
+task lint              # Run ruff linter
+task format            # Format code with ruff
+task test              # Run tests
+task clean             # Clean cache files
+```
+
+**CLI shortcuts:**
+```bash
+task list-rooms        # List all rooms (alias: task ls, task rooms)
+task set-temp ROOM="Living Room" TEMP=20.5   # Set temperature with prompt
+```
+
+### Direct CLI Usage
 
 **List all rooms with thermostats:**
 ```bash
@@ -113,5 +132,6 @@ python -m py_compile ../src/py_netatmo_truetemp/*.py
 - `helpers.py` - Helper functions (API init, error handling, validation)
 - `display.py` - Display formatting with Rich library
 - `pyproject.toml` - Example dependencies (Typer, Rich)
+- `Taskfile.yml` - Task runner configuration with development and CLI shortcuts
 - `README.md` - This file
 - `CLAUDE.md` - Detailed development workflow and architecture guide

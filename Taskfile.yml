@@ -1,0 +1,30 @@
+version: '3'
+
+vars:
+  PYTHON_VERSION: "3.13"
+  PROJECT_NAME: "py-netatmo-truetemp"
+  GET_VERSION:
+    sh: grep -m1 'version = "' pyproject.toml | cut -d'"' -f2
+  GET_LATEST_TAG:
+    sh: git describe --tags --abbrev=0 2>/dev/null || echo ""
+  GET_REPO:
+    sh: gh repo view --json nameWithOwner -q .nameWithOwner 2>/dev/null || echo "P4uLT/py-netatmo-truetemp"
+
+includes:
+  release: ./.task/release
+  version: ./.task/version
+  changelog: ./.task/changelog
+  git: ./.task/git
+  help: ./.task/help
+
+tasks:
+  default:
+    desc: "Show available task namespaces"
+    cmds:
+      - task: help:welcome
+    silent: true
+
+  list:
+    desc: "List all available tasks"
+    cmds:
+      - task --list-all
