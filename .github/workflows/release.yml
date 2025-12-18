@@ -56,7 +56,6 @@ jobs:
           branch: main
           changelog: true
           gpg_sign: true
-          gpg_key: ${{ secrets.GPG_PRIVATE_KEY }}
           git_name: "py-netatmo-truetemp-release-bot[bot]"
           git_email: "py-netatmo-truetemp-release-bot[bot]@users.noreply.github.com"
 
