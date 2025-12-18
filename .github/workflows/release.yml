@@ -47,88 +47,45 @@ jobs:
       - name: Install dependencies
         run: uv sync --frozen
 
-      - name: Run commitizen to bump version
+      - name: Create release with commitizen
         id: cz
-        run: |
-          # Install commitizen
-          uv pip install commitizen
+        uses: commitizen-tools/commitizen-action@master
+        with:
+          github_token: ${{ steps.app-token.outputs.token }}
+          push: true
+          branch: main
+          changelog: true
+          git_name: "py-netatmo-truetemp-release-bot[bot]"
+          git_email: "py-netatmo-truetemp-release-bot[bot]@users.noreply.github.com"
 
-          # Run bump to update files
-          cz bump --yes --changelog
-
-          # Capture version and commit message
-          NEW_VERSION=$(cz version -p)
-          COMMIT_MSG=$(git log -1 --pretty=%B)
-
-          # Get the tag that was created
-          NEW_TAG="v$NEW_VERSION"
-
-          # Export for next steps
-          echo "version=$NEW_VERSION" >> $GITHUB_OUTPUT
-          echo "tag=$NEW_TAG" >> $GITHUB_OUTPUT
-          echo "commit_message<<EOF" >> $GITHUB_OUTPUT
-          echo "$COMMIT_MSG" >> $GITHUB_OUTPUT
-          echo "EOF" >> $GITHUB_OUTPUT
-
-          # Get list of changed files
-          git diff HEAD~1 --name-only > /tmp/changed_files.txt
-
-          # Reset the commit but keep changes staged
-          git reset --soft HEAD~1
-        env:
-          GIT_AUTHOR_NAME: "py-netatmo-truetemp-release-bot[bot]"
-          GIT_AUTHOR_EMAIL: "py-netatmo-truetemp-release-bot[bot]@users.noreply.github.com"
-          GIT_COMMITTER_NAME: "py-netatmo-truetemp-release-bot[bot]"
-          GIT_COMMITTER_EMAIL: "py-netatmo-truetemp-release-bot[bot]@users.noreply.github.com"
-
-      - name: Create signed commit via GitHub API
+      - name: Verify release integrity
         if: steps.cz.outputs.version != ''
         run: |
-          # Get the current commit SHA
-          PARENT_SHA=$(git rev-parse HEAD)
+          echo "Version bumped to: ${{ steps.cz.outputs.version }}"
+          echo "Verifying git history..."
+          git log -1 --pretty=fuller
 
-          # Create a tree with the staged changes
-          TREE_SHA=$(git write-tree)
-
-          # Create commit via GitHub API (this will be signed by GitHub)
-          COMMIT_RESPONSE=$(gh api repos/${{ github.repository }}/git/commits \
-            -f message="${{ steps.cz.outputs.commit_message }}" \
-            -f tree="$TREE_SHA" \
-            -f parents[]="$PARENT_SHA")
-
-          NEW_COMMIT_SHA=$(echo "$COMMIT_RESPONSE" | jq -r '.sha')
-
-          # Update the main branch ref to point to new commit
-          gh api repos/${{ github.repository }}/git/refs/heads/main \
-            -X PATCH \
-            -f sha="$NEW_COMMIT_SHA"
-
-          # Create the tag via API
-          gh api repos/${{ github.repository }}/git/refs \
-            -f ref="refs/tags/${{ steps.cz.outputs.tag }}" \
-            -f sha="$NEW_COMMIT_SHA"
-
-          echo "Created signed commit: $NEW_COMMIT_SHA"
-        env:
-          GH_TOKEN: ${{ steps.app-token.outputs.token }}
-
-      - name: Extract changelog for release
-        if: steps.cz.outputs.version != ''
-        id: changelog
-        run: |
-          VERSION="${{ steps.cz.outputs.version }}"
-
-          CHANGELOG=$(awk '/^## '\"$VERSION\"'/,/^## [0-9]/' CHANGELOG.md | sed '$d' | tail -n +2)
-
-          if [ -z "$CHANGELOG" ]; then
-            CHANGELOG="Release version $VERSION"
+          # Verify the tag was created
+          if ! git tag | grep -q "v${{ steps.cz.outputs.version }}"; then
+            echo "ERROR: Tag v${{ steps.cz.outputs.version }} not found"
+            exit 1
           fi
 
-          {
-            echo 'content<<EOF'
-            echo "$CHANGELOG"
-            echo EOF
-          } >> $GITHUB_OUTPUT
+          # Verify changelog was updated
+          if ! grep -q "${{ steps.cz.outputs.version }}" CHANGELOG.md; then
+            echo "ERROR: CHANGELOG.md not updated"
+            exit 1
+          fi
+
+          echo "Release integrity verified"
+
+      - name: Extract changelog
+        if: steps.cz.outputs.version != ''
+        id: changelog
+        uses: mindsers/changelog-reader-action@v2
+        with:
+          version: ${{ steps.cz.outputs.version }}
+          path: ./CHANGELOG.md
 
       - name: Create GitHub Release
         if: steps.cz.outputs.version != ''
@@ -137,6 +94,7 @@ jobs:
           token: ${{ steps.app-token.outputs.token }}
           tag: v${{ steps.cz.outputs.version }}
           name: Release v${{ steps.cz.outputs.version }}
-          body: ${{ steps.changelog.outputs.content }}
+          body: ${{ steps.changelog.outputs.changes }}
           draft: false
           prerelease: false
+          generateReleaseNotes: true
