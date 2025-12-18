@@ -40,6 +40,12 @@ jobs:
       - name: Install dependencies
         run: uv sync --frozen
 
+      - name: Import GPG key
+        run: |
+          echo "${{ secrets.GPG_PRIVATE_KEY }}" | base64 --decode | gpg --batch --import
+          git config --global user.signingkey ${{ secrets.GPG_KEY_ID }}
+          git config --global commit.gpgsign true
+
       - name: Create bump and changelog
         id: cz
         uses: commitizen-tools/commitizen-action@master
@@ -48,6 +54,7 @@ jobs:
           push: true
           branch: main
           changelog: true
+          gpg_sign: true
           git_name: "github-actions[bot]"
           git_email: "github-actions[bot]@users.noreply.github.com"
 
