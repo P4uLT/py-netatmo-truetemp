@@ -48,7 +48,6 @@ jobs:
           push: true
           branch: main
           changelog: true
-          changelog_increment_filename: CHANGELOG.md
           git_name: "github-actions[bot]"
           git_email: "github-actions[bot]@users.noreply.github.com"
 
