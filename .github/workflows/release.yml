@@ -55,8 +55,8 @@ jobs:
           push: true
           branch: main
           changelog: true
-          git_name: "P4uLT"
-          git_email: "7680607+P4uLT@users.noreply.github.com"
+          git_name: "py-netatmo-truetemp-release-bot[bot]"
+          git_email: "py-netatmo-truetemp-release-bot[bot]@users.noreply.github.com"
 
       - name: Extract changelog for release
         if: steps.cz.outputs.version != ''
