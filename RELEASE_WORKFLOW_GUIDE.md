@@ -233,11 +233,11 @@ changelog_file = "CHANGELOG.md"
 ### Taskfile.yml
 
 Modular task structure:
-- `tasks/release/` - Release operations
-- `tasks/version/` - Version utilities
-- `tasks/changelog/` - Changelog operations
-- `tasks/git/` - Git utilities
-- `tasks/help/` - Help and documentation
+- `.task/release/` - Release operations
+- `.task/version/` - Version utilities
+- `.task/changelog/` - Changelog operations
+- `.task/git/` - Git utilities
+- `.task/help/` - Help and documentation
 
 ## Best Practices
 

@@ -109,12 +109,12 @@ git commit -m "docs: update installation guide"
 - Triggers PyPI publishing workflow
 
 **`Taskfile.yml`** - Task automation:
-- Modular structure with separate task files in `tasks/` directory
-- `tasks/release/` - Release operations
-- `tasks/version/` - Version utilities
-- `tasks/changelog/` - Changelog operations
-- `tasks/git/` - Git utilities
-- `tasks/help/` - Help and documentation
+- Modular structure with separate task files in `.task/` directory
+- `.task/release/` - Release operations
+- `.task/version/` - Version utilities
+- `.task/changelog/` - Changelog operations
+- `.task/git/` - Git utilities
+- `.task/help/` - Help and documentation
 
 **`.pre-commit-config.yaml`** - Pre-commit hooks:
 - Enforces conventional commit message format

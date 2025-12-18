@@ -11,11 +11,11 @@ vars:
     sh: gh repo view --json nameWithOwner -q .nameWithOwner 2>/dev/null || echo "P4uLT/py-netatmo-truetemp"
 
 includes:
-  release: ./tasks/release
-  version: ./tasks/version
-  changelog: ./tasks/changelog
-  git: ./tasks/git
-  help: ./tasks/help
+  release: ./.task/release
+  version: ./.task/version
+  changelog: ./.task/changelog
+  git: ./.task/git
+  help: ./.task/help
 
 tasks:
   default:
