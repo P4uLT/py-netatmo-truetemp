@@ -23,11 +23,10 @@ python -m py_compile src/py_netatmo_truetemp/*.py
 
 ## Release Automation
 
-This project uses automated releases with commitizen and GitHub Actions. The system handles versioning, changelog generation, and publishing to PyPI.
+This project uses **semantic-release** for fully automated releases. All versioning, changelog generation, and publishing happens automatically in CI when you push to the main branch.
 
 ### Quick Start
 
-**Automatic Releases** (Recommended):
 ```bash
 # 1. Make changes with conventional commits
 git commit -m "feat: add new feature"
@@ -37,39 +36,31 @@ git commit -m "fix: resolve bug"
 git push origin main
 
 # GitHub Actions automatically:
-# - Bumps version based on commits
-# - Updates CHANGELOG.md
-# - Creates git tag
+# - Analyzes conventional commits
+# - Determines version bump (major/minor/patch)
+# - Updates version in pyproject.toml and __init__.py
+# - Generates and updates CHANGELOG.md
+# - Creates git tag with verified signature
 # - Creates GitHub Release
 # - Publishes to PyPI
 ```
 
-**Manual Local Releases** (Testing/Emergency):
+That's it! No manual steps required.
+
+### Checking Your Work
+
+Before pushing, verify your commits:
+
 ```bash
-# Preview what would happen
-task release:dry-run
-task git:unreleased
+# View recent commits
+git log --oneline -10
 
-# Create release locally
-task release:bump          # Auto-detect version
-task release:major         # Force major bump
-task release:minor         # Force minor bump
-task release:patch         # Force patch bump
+# View commits since last tag
+git log $(git describe --tags --abbrev=0)..HEAD --oneline
 
-# Push to trigger automation
-task release:push
+# Check if commits follow conventional format
+git log --oneline -10 | grep -E "^[a-f0-9]+ (feat|fix|perf|revert|docs|refactor|style|test|chore|ci)"
 ```
-
-### Taskfile Commands
-
-This project uses [Taskfile](https://taskfile.dev/) for automation. Run `task --list` to see all available commands or `task help:guide` for detailed help.
-
-**Key task namespaces**:
-- `task release:*` - Release operations (bump, dry-run, push)
-- `task version:*` - Version utilities (current, history, next)
-- `task changelog:*` - Changelog operations (show, preview, latest)
-- `task git:*` - Git utilities (log, status, unreleased)
-- `task help:*` - Help and documentation
 
 ### Conventional Commits
 
@@ -101,40 +92,25 @@ git commit -m "docs: update installation guide"
 
 ### Configuration Files
 
+**`.releaserc.json`** - semantic-release configuration:
+- Defines release rules and commit analysis
+- Configures changelog generation with conventional commits
+- Specifies version file updates (pyproject.toml, __init__.py)
+- Sets commit message format for release commits
+- Configures GitHub Release creation
+
 **`.github/workflows/release.yml`** - Automated release workflow:
 - Triggers on push to main branch
-- Uses commitizen-action to analyze commits and bump versions
+- Uses semantic-release to analyze commits and determine version
 - Updates `pyproject.toml`, `__init__.py`, and `CHANGELOG.md`
-- Creates git tags and GitHub Releases
+- Creates git tags with verified signature (GitHub App)
+- Creates GitHub Releases with changelog
 - Triggers PyPI publishing workflow
-
-**`Taskfile.yml`** - Task automation:
-- Modular structure with separate task files in `.task/` directory
-- `.task/release/` - Release operations
-- `.task/version/` - Version utilities
-- `.task/changelog/` - Changelog operations
-- `.task/git/` - Git utilities
-- `.task/help/` - Help and documentation
 
 **`.pre-commit-config.yaml`** - Pre-commit hooks:
 - Enforces conventional commit message format
 - Runs file format checks (trailing whitespace, end-of-file-fixer)
 - Validates YAML and TOML syntax
-
-**`pyproject.toml`** - Commitizen configuration:
-```toml
-[tool.commitizen]
-name = "cz_conventional_commits"
-version = "0.1.0"
-version_files = [
-    "pyproject.toml:project.version",
-    "pyproject.toml:tool.commitizen.version",
-    "src/py_netatmo_truetemp/__init__.py:__version__",
-]
-tag_format = "v$version"
-update_changelog_on_bump = true
-changelog_file = "CHANGELOG.md"
-```
 
 For complete workflow documentation, troubleshooting, and best practices, see **`RELEASE_WORKFLOW_GUIDE.md`**.
 
@@ -388,5 +364,5 @@ api = NetatmoAPI(
 - **`src/py_netatmo_truetemp/__init__.py`** - Public API exports
 - **`pyproject.toml`** - Build configuration and dependencies
 - **`RELEASE_WORKFLOW_GUIDE.md`** - Complete release automation documentation, troubleshooting, and workflow details
-- **`Taskfile.yml`** - Task automation commands and configuration
+- **`.releaserc.json`** - semantic-release configuration
 - **`.github/workflows/release.yml`** - Automated release workflow definition

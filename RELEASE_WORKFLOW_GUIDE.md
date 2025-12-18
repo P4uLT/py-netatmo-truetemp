@@ -1,10 +1,10 @@
 # Release Workflow Guide
 
-This project uses automated releases with commitizen for semantic versioning and conventional commits.
+This project uses **semantic-release** for fully automated releases. All versioning, changelog generation, and publishing happens automatically in CI when you push to the main branch.
 
 ## Quick Start
 
-### Automatic Releases (Recommended)
+### Automated Releases (Only Method)
 
 ```bash
 # 1. Make changes with conventional commits
@@ -15,78 +15,49 @@ git commit -m "fix: resolve bug"
 git push origin main
 
 # GitHub Actions automatically:
-# - Bumps version based on commits
-# - Updates CHANGELOG.md
-# - Creates git tag
+# - Analyzes conventional commits
+# - Determines version bump (major/minor/patch)
+# - Updates version in pyproject.toml and __init__.py
+# - Generates and updates CHANGELOG.md
+# - Creates git tag with verified signature
 # - Creates GitHub Release
 # - Publishes to PyPI
 ```
 
-### Manual Local Releases
+That's it! No manual steps required.
 
-```bash
-# Preview what would happen
-task release:dry-run
-task git:unreleased
+## How It Works
 
-# Create release locally
-task release:bump          # Auto-detect version
-task release:major         # Force major bump (0.1.0 → 1.0.0)
-task release:minor         # Force minor bump (0.1.0 → 0.2.0)
-task release:patch         # Force patch bump (0.1.0 → 0.1.1)
+### The Release Pipeline
 
-# Review and push
-task git:log
-task changelog:latest
-task release:push          # Triggers GitHub Actions
-```
+The `.github/workflows/release.yml` workflow runs on every push to main:
 
-## Taskfile Commands
+1. **Commit Analysis**: Scans commits since last release using conventional commits format
+2. **Version Calculation**: Determines next version based on commit types:
+   - `feat:` → minor bump (0.1.0 → 0.2.0)
+   - `fix:`, `perf:`, `revert:` → patch bump (0.1.0 → 0.1.1)
+   - `feat!:` or `BREAKING CHANGE:` → major bump (0.1.0 → 1.0.0)
+   - `docs:`, `refactor:`, `style:`, `test:`, `chore:`, `ci:` → no release
+3. **Version Update**: Updates version in:
+   - `pyproject.toml` (project.version)
+   - `src/py_netatmo_truetemp/__init__.py` (__version__)
+4. **Changelog Generation**: Automatically generates changelog from commits
+5. **Git Tag Creation**: Creates signed tag using GitHub App
+6. **GitHub Release**: Publishes release with changelog notes
+7. **PyPI Publishing**: Triggered automatically by tag creation
 
-Run `task --list` to see all available commands, or `task help:guide` for detailed help.
+### Smart Release Logic
 
-### Release Commands
-
-- `task release:bump` - Create release with auto version detection
-- `task release:major` - Force major version bump
-- `task release:minor` - Force minor version bump
-- `task release:patch` - Force patch version bump
-- `task release:dry-run` - Preview what would be released
-- `task release:check` - Check if release is needed
-- `task release:push` - Push release to GitHub (triggers automation)
-
-### Version Commands
-
-- `task version:current` - Show current version
-- `task version:history` - Show release history
-- `task version:latest` - Show latest release tag
-- `task version:next` - Predict next version
-- `task version:sync-check` - Verify version files are in sync
-
-### Changelog Commands
-
-- `task changelog:show` - Display full changelog
-- `task changelog:preview` - Preview next changelog
-- `task changelog:latest` - Show latest release notes
-- `task changelog:unreleased` - Show unreleased changes
-
-### Git Commands
-
-- `task git:log` - Show recent commits
-- `task git:since-release` - Show commits since last release
-- `task git:unreleased` - Show unreleased changes grouped by type
-- `task git:status` - Show git status
-- `task git:tags` - List all tags
-
-### Help Commands
-
-- `task help:guide` - Show complete workflow guide
-- `task help:release` - Show release workflow
-- `task help:commits` - Show conventional commit format guide
+- **Skip CI Commits**: Release commits contain `[skip ci]` to prevent infinite loops
+- **No Unnecessary Releases**: If no `feat:` or `fix:` commits exist, no release is created
+- **Verified Commits**: Uses GitHub App token for signed, verified commits
+- **Automatic Labeling**: Adds `release` label during process, `released` label when complete
 
 ## Conventional Commits
 
-This project requires conventional commit format (enforced by pre-commit hooks):
+All commits must follow the [Conventional Commits](https://www.conventionalcommits.org/) specification (enforced by pre-commit hooks).
+
+### Format
 
 ```
 <type>[optional scope]: <description>
@@ -96,160 +67,344 @@ This project requires conventional commit format (enforced by pre-commit hooks):
 [optional footer(s)]
 ```
 
-### Commit Types
+### Commit Types and Version Impact
 
-| Type | Description | Version Bump |
-|------|-------------|--------------|
-| `feat:` | New feature | Minor (0.1.0 → 0.2.0) |
-| `fix:` | Bug fix | Patch (0.1.0 → 0.1.1) |
-| `feat!:` | Breaking change | Major (0.1.0 → 1.0.0) |
-| `docs:` | Documentation | None |
-| `style:` | Code style | None |
-| `refactor:` | Code refactoring | None |
-| `perf:` | Performance | None |
-| `test:` | Tests | None |
-| `chore:` | Maintenance | None |
-| `ci:` | CI/CD changes | None |
+| Type | Description | Version Bump | Shows in Changelog |
+|------|-------------|--------------|-------------------|
+| `feat:` | New feature | Minor | ✅ Features |
+| `fix:` | Bug fix | Patch | ✅ Bug Fixes |
+| `perf:` | Performance improvement | Patch | ✅ Performance |
+| `revert:` | Revert previous commit | Patch | ✅ Reverts |
+| `docs:` | Documentation only | None* | ✅ Documentation |
+| `refactor:` | Code refactoring | None | ❌ Hidden |
+| `style:` | Code style/formatting | None | ❌ Hidden |
+| `test:` | Tests only | None | ❌ Hidden |
+| `chore:` | Maintenance tasks | None | ❌ Hidden |
+| `ci:` | CI/CD changes | None | ❌ Hidden |
+
+*`docs:` with scope `README` triggers patch bump
+
+### Breaking Changes
+
+Use `!` after the type or add `BREAKING CHANGE:` footer for major version bumps:
+
+```bash
+# Method 1: Exclamation mark
+git commit -m "feat!: redesign API interface"
+
+# Method 2: Footer
+git commit -m "feat: add new authentication
+
+BREAKING CHANGE: NetatmoAPI constructor signature changed"
+```
 
 ### Examples
 
 ```bash
-# Feature (minor bump)
-git commit -m "feat: add temperature scheduling"
+# Feature (minor bump: 0.1.0 → 0.2.0)
+git commit -m "feat: add temperature scheduling support"
 
-# Bug fix (patch bump)
-git commit -m "fix: handle auth timeout errors"
+# Bug fix (patch bump: 0.1.0 → 0.1.1)
+git commit -m "fix: handle authentication timeout errors"
 
-# Breaking change (major bump)
-git commit -m "feat!: redesign API interface"
+# Performance improvement (patch bump)
+git commit -m "perf: optimize API request caching"
+
+# Breaking change (major bump: 0.1.0 → 1.0.0)
+git commit -m "feat!: redesign thermostat service API"
 
 # With scope
-git commit -m "feat(api): add new endpoint"
+git commit -m "feat(api): add room listing endpoint"
 
-# With body and footer
-git commit -m "feat: add user authentication
+# Documentation (no release, unless README scope)
+git commit -m "docs: update installation instructions"
+git commit -m "docs(README): fix installation command"  # triggers patch
 
-Add OAuth2 support for user authentication
-
-BREAKING CHANGE: NetatmoAPI constructor now requires home_id"
+# No release
+git commit -m "refactor: simplify authentication logic"
+git commit -m "test: add unit tests for thermostat service"
+git commit -m "chore: update dependencies"
 ```
 
-## How It Works
+## Checking Your Commits
 
-### Automatic Workflow
+Before pushing, verify your commits will trigger a release:
 
-The `.github/workflows/release.yml` workflow:
+```bash
+# View recent commits
+git log --oneline -10
 
-1. **Triggers** on push to main branch
-2. **Uses** commitizen-action to:
-   - Analyze conventional commits
-   - Bump version in `pyproject.toml` and `__init__.py`
-   - Update `CHANGELOG.md`
-   - Create git tag
-   - Push changes back to main
-3. **Creates** GitHub Release with changelog
-4. **Triggers** publish workflow (on tag push) to publish to PyPI
+# View commits since last tag
+git log $(git describe --tags --abbrev=0)..HEAD --oneline
 
-### Infinite Loop Prevention
-
-The workflow won't trigger on its own bump commits:
-```yaml
-if: "!startsWith(github.event.head_commit.message, 'bump:')"
+# Check if commits follow conventional format
+git log --oneline -10 | grep -E "^[a-f0-9]+ (feat|fix|perf|revert|docs|refactor|style|test|chore|ci)"
 ```
 
-### Smart Skipping
+Use the pre-commit hooks to catch format errors early:
 
-If there are no `feat:` or `fix:` commits since the last release, no release is created.
+```bash
+# Install hooks
+uv run pre-commit install
+
+# Test manually
+uv run pre-commit run --all-files
+```
+
+## Monitoring Releases
+
+### Watch the Workflow
+
+After pushing to main:
+
+1. Go to **Actions** tab in GitHub
+2. Click on the **Release** workflow run
+3. Monitor the steps in real-time
+
+Direct link: `https://github.com/P4uLT/py-netatmo-truetemp/actions`
+
+### Verify Release Success
+
+Check these indicators:
+
+1. **New Git Tag**: `git fetch --tags && git tag -l`
+2. **GitHub Release**: Go to Releases page
+3. **Updated Files**: Check `CHANGELOG.md`, `pyproject.toml`, `__init__.py`
+4. **PyPI**: Visit https://pypi.org/project/py-netatmo-truetemp/
 
 ## Troubleshooting
 
 ### No Release Created
 
-**Cause**: No conventional commits since last release
+**Symptom**: Workflow runs but no release is created
 
-**Fix**: Ensure commits follow conventional format (`feat:`, `fix:`, etc.)
+**Causes**:
+- No `feat:` or `fix:` commits since last release
+- Only non-release commits (`docs:`, `refactor:`, `chore:`, etc.)
+- Commits don't follow conventional format
 
-### Version Not Bumping
-
-**Debug locally**:
+**Solution**:
 ```bash
-task release:dry-run
-task git:unreleased
+# Check commit history
+git log $(git describe --tags --abbrev=0)..HEAD --oneline
+
+# Verify conventional commit format
+# Each commit should start with: feat:, fix:, etc.
 ```
 
-### Permission Denied
+### Workflow Fails
 
-**Cause**: GITHUB_TOKEN doesn't have write permissions
+**Symptom**: Red X on workflow run
 
-**Fix**: Go to Settings → Actions → General → Set "Workflow permissions" to "Read and write permissions"
+**Causes**:
+- Syntax error in `.releaserc.json`
+- Missing GitHub App credentials
+- Permission issues
+
+**Solution**:
+1. Click on failed workflow run to see error
+2. Check workflow logs for specific error message
+3. Verify GitHub App token is configured (Settings → Secrets)
 
 ### Version Files Out of Sync
 
-**Check**:
+**Symptom**: Version differs between `pyproject.toml` and `__init__.py`
+
+**Cause**: Manual edits or workflow failure
+
+**Solution**: Let semantic-release fix it on next release. Never edit version manually.
+
+### Pre-commit Hook Rejects Commit
+
+**Symptom**: `commit-msg` hook fails
+
+**Cause**: Commit message doesn't follow conventional format
+
+**Solution**:
 ```bash
-task version:sync-check
+# Bad
+git commit -m "added new feature"
+git commit -m "bug fix"
+
+# Good
+git commit -m "feat: add temperature scheduling"
+git commit -m "fix: resolve authentication timeout"
 ```
 
-**Fix**: Commitizen should keep them in sync automatically. If not, check `pyproject.toml` configuration.
+### Need to Skip CI
 
-## Emergency Manual Release
+**Symptom**: Want to push without triggering release
 
-If the automated workflow fails:
+**Solution**: Add `[skip ci]` to commit message:
+```bash
+git commit -m "docs: update README [skip ci]"
+```
+
+Note: Only use for documentation or non-code changes. Semantic-release already handles this for release commits.
+
+## Emergency Procedures
+
+### Critical Bug in Latest Release
+
+**Don't panic!** Fix forward:
 
 ```bash
-# 1. Create release locally
-task release:bump
+# 1. Create hotfix branch from main
+git checkout main
+git pull origin main
 
-# 2. Review changes
-task git:log
-task changelog:latest
+# 2. Fix the bug
+# ... make changes ...
 
-# 3. Push manually
+# 3. Commit with fix: type
+git commit -m "fix: resolve critical authentication bug"
+
+# 4. Push - automatic patch release
 git push origin main
-git push origin --tags
 
-# 4. Create GitHub Release manually if needed
-gh release create v0.2.0 --notes "$(task changelog:latest)"
+# Result: 0.2.0 → 0.2.1 (automatic)
 ```
 
-## Configuration Files
+### Accidentally Pushed Breaking Change
 
-### pyproject.toml
+If you pushed a commit with `feat!:` or `BREAKING CHANGE:` by mistake:
 
-```toml
-[tool.commitizen]
-name = "cz_conventional_commits"
-version = "0.1.0"
-version_files = [
-    "pyproject.toml:project.version",
-    "pyproject.toml:tool.commitizen.version",
-    "src/py_netatmo_truetemp/__init__.py:__version__",
-]
-tag_format = "v$version"
-update_changelog_on_bump = true
-changelog_file = "CHANGELOG.md"
+**Option 1: Accept it** (Recommended)
+- Let the major version bump happen
+- Document in release notes
+- If not actually breaking, clarify in GitHub Release description
+
+**Option 2: Revert** (Before release runs)
+```bash
+git revert HEAD
+git push origin main
+# Semantic-release won't create release (revert commits trigger patch, but cancel out the breaking change)
 ```
 
-### Taskfile.yml
+**Option 3: Manual intervention** (After release already created)
+- Cannot undo - versions are permanent
+- Fix forward with new release
+- Update GitHub Release notes to clarify
 
-Modular task structure:
-- `.task/release/` - Release operations
-- `.task/version/` - Version utilities
-- `.task/changelog/` - Changelog operations
-- `.task/git/` - Git utilities
-- `.task/help/` - Help and documentation
+### Workflow Permanently Broken
+
+If semantic-release workflow is completely broken:
+
+1. **Check workflow file**: `.github/workflows/release.yml`
+2. **Verify secrets**: GitHub App credentials in Settings → Secrets
+3. **Test locally** (requires Node.js):
+   ```bash
+   npm install -g semantic-release @semantic-release/changelog @semantic-release/git @semantic-release/exec conventional-changelog-conventionalcommits
+   semantic-release --dry-run
+   ```
+4. **Manual release** (last resort):
+   ```bash
+   # Manually update version
+   # Edit pyproject.toml and __init__.py
+
+   # Update changelog
+   # Edit CHANGELOG.md
+
+   # Create tag
+   git tag -a v0.2.0 -m "Release v0.2.0"
+   git push origin v0.2.0
+
+   # Create GitHub Release manually
+   gh release create v0.2.0 --notes "Release notes here"
+   ```
+
+## Configuration
+
+### semantic-release Configuration
+
+The `.releaserc.json` file controls release behavior:
+
+```json
+{
+  "branches": ["main"],
+  "plugins": [
+    "@semantic-release/commit-analyzer",
+    "@semantic-release/release-notes-generator",
+    "@semantic-release/changelog",
+    "@semantic-release/exec",
+    "@semantic-release/git",
+    "@semantic-release/github"
+  ]
+}
+```
+
+**Key settings**:
+- `branches`: Only `main` triggers releases
+- `releaseRules`: Defines which commit types trigger releases
+- `changelogTitle`: Sets changelog header format
+- `message`: Template for release commit message
+
+### GitHub Workflow Configuration
+
+The `.github/workflows/release.yml` requires:
+
+**Secrets**:
+- `APP_ID`: GitHub App ID (for verified commits)
+- `APP_PRIVATE_KEY`: GitHub App private key
+
+**Permissions**:
+- `contents: write` - Create commits, tags, releases
+- `id-token: write` - PyPI trusted publishing
+
+### Pre-commit Hooks
+
+The `.pre-commit-config.yaml` enforces commit message format:
+
+```yaml
+- repo: https://github.com/compwa/commitizen-pre-commit
+  hooks:
+    - id: commitizen
+      stages: [commit-msg]
+```
+
+Install hooks:
+```bash
+uv run pre-commit install --hook-type commit-msg
+```
 
 ## Best Practices
 
-1. **Use conventional commits** - Enforced by pre-commit hooks
-2. **Let automation handle releases** - Push to main and let GitHub Actions do the work
-3. **Use Taskfile for local testing** - Preview releases before pushing
-4. **Fix forward, don't rollback** - Releases are permanent
-5. **Review changes before pushing** - Use `task git:unreleased` and `task release:dry-run`
+1. **Trust the Automation**: Don't manually edit version numbers or CHANGELOG.md
+2. **Write Good Commit Messages**: Clear, descriptive, following conventional format
+3. **Use Scopes**: Add scope for better organization: `feat(api):`, `fix(auth):`
+4. **Group Related Changes**: Squash related commits before merging
+5. **Test Before Pushing**: Run tests locally before pushing to main
+6. **Monitor Releases**: Check Actions tab after pushing
+7. **Fix Forward**: Never revert releases - fix bugs with new releases
+8. **Document Breaking Changes**: Explain impact in commit body
+
+## FAQ
+
+**Q: Can I release manually?**
+A: No. Semantic-release handles all releases automatically. This ensures consistency and verified commits.
+
+**Q: Can I choose the version number?**
+A: No. Version is determined automatically by commit types. Use correct commit types (`feat:`, `fix:`, etc.) to control version bumps.
+
+**Q: What if I need to test releases?**
+A: Use a separate branch or fork. The main branch is for production releases only.
+
+**Q: Can I skip a release?**
+A: Yes, by only pushing non-release commits (`refactor:`, `docs:`, `test:`, `chore:`).
+
+**Q: How do I make a hotfix?**
+A: Push a `fix:` commit to main. It will automatically create a patch release.
+
+**Q: Can I release from a feature branch?**
+A: No. Only commits on `main` trigger releases. Merge your feature branch to main first.
+
+**Q: What if the workflow fails?**
+A: Fix the underlying issue (usually permissions or configuration) and push a new commit. The workflow will retry.
 
 ## References
 
+- [Semantic Release Documentation](https://semantic-release.gitbook.io/)
 - [Conventional Commits Specification](https://www.conventionalcommits.org/)
 - [Semantic Versioning](https://semver.org/)
-- [Commitizen Documentation](https://commitizen-tools.github.io/commitizen/)
-- [Taskfile Documentation](https://taskfile.dev/)
+- [Keep a Changelog](https://keepachangelog.com/)
+- [GitHub Actions Documentation](https://docs.github.com/en/actions)
