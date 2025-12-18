@@ -1,0 +1,219 @@
+version: '3'
+
+tasks:
+  welcome:
+    desc: "Show welcome message and quick start"
+    cmds:
+      - |
+        cat <<'EOF'
+
+        🎯 py-netatmo-truetemp - Task Runner
+        =====================================
+
+        Quick Start:
+        ------------
+        task --list              # List all available tasks
+        task help:guide          # Show complete workflow guide
+        task help:release        # Show release workflow
+
+        Common Commands:
+        ----------------
+        task release:bump        # Create release (auto version)
+        task release:push        # Push release to GitHub
+        task version:current     # Show current version
+        task git:unreleased      # Show unreleased changes
+
+        📚 Run 'task help:guide' for detailed documentation
+
+        EOF
+    silent: true
+
+  guide:
+    desc: "Show complete workflow guide"
+    aliases: ["full", "docs"]
+    cmds:
+      - |
+        cat <<'EOF'
+
+        📚 Complete Workflow Guide
+        ===========================
+
+        🤖 Automatic Releases (Default):
+        --------------------------------
+        1. Make changes and commit with conventional format:
+           git commit -m "feat: add new feature"
+           git commit -m "fix: resolve bug"
+
+        2. Push to main (triggers automatic release):
+           git push origin main
+
+        3. GitHub Actions handles everything:
+           ✓ Version bump
+           ✓ Changelog update
+           ✓ Git tag creation
+           ✓ GitHub Release
+           ✓ PyPI publish
+
+
+        🛠️  Manual Local Releases:
+        --------------------------
+        1. Check what would be released:
+           task release:dry-run
+           task git:unreleased
+
+        2. Create release locally:
+           task release:bump        # Auto-detect version
+           task release:major       # Force major bump
+           task release:minor       # Force minor bump
+           task release:patch       # Force patch bump
+
+        3. Review the changes:
+           task git:log
+           task changelog:latest
+
+        4. Push to trigger GitHub Actions:
+           task release:push
+
+
+        🔍 Utility Commands:
+        -------------------
+        Version:
+          task version:current       # Show current version
+          task version:history       # Show release history
+          task version:next          # Predict next version
+          task version:sync-check    # Verify version files in sync
+
+        Changelog:
+          task changelog:show        # Display full changelog
+          task changelog:preview     # Preview next changelog
+          task changelog:latest      # Show latest release notes
+          task changelog:unreleased  # Show unreleased section
+
+        Git:
+          task git:log               # Recent commits
+          task git:since-release     # Commits since last release
+          task git:unreleased        # Unreleased changes by type
+          task git:status            # Git status
+          task git:tags              # List all tags
+
+        Release:
+          task release:check         # Check if release is needed
+          task release:dry-run       # Preview release
+          task release:bump          # Create release
+          task release:push          # Push to GitHub
+
+
+        ⚠️  Important Notes:
+        -------------------
+        - Always use conventional commit format (enforced by pre-commit)
+        - Releases are permanent - fix forward, don't rollback
+        - Only feat/fix/breaking commits trigger version bumps
+        - Manual releases are optional - automatic is preferred
+
+
+        📖 More Info:
+        ------------
+        - Conventional Commits: https://www.conventionalcommits.org/
+        - Taskfile Docs: https://taskfile.dev/
+
+        EOF
+    silent: true
+
+  release:
+    desc: "Show release workflow help"
+    cmds:
+      - |
+        cat <<'EOF'
+
+        📦 Release Workflow
+        ===================
+
+        Automatic (Recommended):
+        ------------------------
+        git commit -m "feat: new feature"
+        git push origin main
+        # Done! GitHub Actions handles the rest
+
+        Manual Local:
+        -------------
+        1. task release:dry-run       # Preview
+        2. task release:bump          # Create release
+        3. task git:log               # Review
+        4. task release:push          # Push to GitHub
+
+        Version Types:
+        --------------
+        task release:major    # 0.1.0 → 1.0.0 (breaking changes)
+        task release:minor    # 0.1.0 → 0.2.0 (new features)
+        task release:patch    # 0.1.0 → 0.1.1 (bug fixes)
+        task release:bump     # Auto-detect from commits
+
+        Before Releasing:
+        -----------------
+        task release:check          # Is release needed?
+        task git:unreleased         # What will be released?
+        task version:next           # What version will it be?
+        task changelog:preview      # Preview changelog
+
+        After Creating Release:
+        -----------------------
+        task git:log                # Review commits
+        task changelog:latest       # Review changelog
+        task version:sync-check     # Verify versions in sync
+        task release:push           # Push to trigger automation
+
+        EOF
+    silent: true
+
+  commits:
+    desc: "Show conventional commit format guide"
+    aliases: ["conventional", "format"]
+    cmds:
+      - |
+        cat <<'EOF'
+
+        📝 Conventional Commit Format
+        ==============================
+
+        Format:
+        -------
+        <type>[optional scope]: <description>
+
+        [optional body]
+
+        [optional footer(s)]
+
+        Types:
+        ------
+        feat:      New feature (minor version bump)
+        fix:       Bug fix (patch version bump)
+        docs:      Documentation only
+        style:     Code style (formatting, no logic change)
+        refactor:  Code refactoring
+        perf:      Performance improvement
+        test:      Adding tests
+        chore:     Maintenance tasks
+        ci:        CI/CD changes
+
+        Breaking Changes:
+        -----------------
+        feat!: breaking change         # Major version bump
+        fix!: breaking change          # Major version bump
+
+        OR include footer:
+        BREAKING CHANGE: description   # Major version bump
+
+        Examples:
+        ---------
+        feat: add temperature scheduling
+        fix: handle auth timeout errors
+        feat(api)!: redesign API interface
+        docs: update README examples
+        chore(deps): bump requests to 2.32.5
+
+        More Info:
+        ----------
+        https://www.conventionalcommits.org/
+
+        EOF
+    silent: true

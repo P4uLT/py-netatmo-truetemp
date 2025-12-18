@@ -1,0 +1,24 @@
+version: '3'
+
+vars:
+  PYTHON_VERSION: "3.13"
+  PROJECT_NAME: "py-netatmo-truetemp"
+
+includes:
+  release: ./tasks/release
+  version: ./tasks/version
+  changelog: ./tasks/changelog
+  git: ./tasks/git
+  help: ./tasks/help
+
+tasks:
+  default:
+    desc: "Show available task namespaces"
+    cmds:
+      - task: help:welcome
+    silent: true
+
+  list:
+    desc: "List all available tasks"
+    cmds:
+      - task --list-all

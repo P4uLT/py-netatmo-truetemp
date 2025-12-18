@@ -1,0 +1,83 @@
+version: '3'
+
+tasks:
+  log:
+    desc: "Show recent commits (last 10)"
+    aliases: ["history"]
+    cmds:
+      - git log --oneline --decorate --graph -10
+
+  since-release:
+    desc: "Show commits since last release"
+    aliases: ["unreleased-commits"]
+    cmds:
+      - |
+        LAST_TAG=$(git describe --tags --abbrev=0 2>/dev/null || echo "")
+        if [ -z "$LAST_TAG" ]; then
+          echo "No releases yet, showing all commits:"
+          git log --oneline --decorate
+        else
+          echo "Commits since $LAST_TAG:"
+          git log $LAST_TAG..HEAD --oneline --decorate
+        fi
+
+  unreleased:
+    desc: "Show unreleased commits grouped by type"
+    aliases: ["changes", "what-changed"]
+    cmds:
+      - |
+        LAST_TAG=$(git describe --tags --abbrev=0 2>/dev/null || echo "")
+        RANGE="${LAST_TAG:+$LAST_TAG..}HEAD"
+
+        echo "📦 Unreleased changes:"
+        echo ""
+
+        echo "✨ Features:"
+        git log $RANGE --oneline --grep="^feat" || echo "  (none)"
+        echo ""
+
+        echo "🐛 Fixes:"
+        git log $RANGE --oneline --grep="^fix" || echo "  (none)"
+        echo ""
+
+        echo "💥 Breaking Changes:"
+        git log $RANGE --oneline --grep="BREAKING CHANGE" || echo "  (none)"
+        echo ""
+
+        echo "📝 Other:"
+        git log $RANGE --oneline --grep="^feat" --grep="^fix" --grep="BREAKING CHANGE" --invert-grep || echo "  (none)"
+
+  status:
+    desc: "Show git status"
+    cmds:
+      - git status
+
+  tags:
+    desc: "List all tags"
+    aliases: ["list-tags"]
+    cmds:
+      - git tag -l --sort=-v:refname
+
+  check-clean:
+    desc: "Check if working directory is clean"
+    cmds:
+      - |
+        if git diff --quiet; then
+          echo "✅ Working directory is clean"
+        else
+          echo "❌ Working directory has uncommitted changes:"
+          git status -s
+          exit 1
+        fi
+
+  check-main:
+    desc: "Check if on main branch"
+    cmds:
+      - |
+        BRANCH=$(git rev-parse --abbrev-ref HEAD)
+        if [ "$BRANCH" = "main" ]; then
+          echo "✅ On main branch"
+        else
+          echo "❌ Not on main branch (currently on: $BRANCH)"
+          exit 1
+        fi

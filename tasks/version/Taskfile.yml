@@ -1,0 +1,67 @@
+version: '3'
+
+tasks:
+  current:
+    desc: "Show current version"
+    aliases: ["show", "get"]
+    cmds:
+      - |
+        VERSION=$(grep -m1 'version = ' pyproject.toml | cut -d'"' -f2)
+        echo "Current version: v$VERSION"
+
+  history:
+    desc: "Show version history (last 10 releases)"
+    aliases: ["list", "releases"]
+    cmds:
+      - |
+        echo "📜 Release history:"
+        git tag -l --sort=-v:refname | head -10
+
+  latest:
+    desc: "Show the latest release tag"
+    cmds:
+      - |
+        LATEST=$(git describe --tags --abbrev=0 2>/dev/null || echo "No releases yet")
+        echo "Latest release: $LATEST"
+
+  next:
+    desc: "Predict what the next version will be"
+    cmds:
+      - echo "🔮 Predicting next version..."
+      - uv run cz bump --dry-run 2>&1 | grep "bump:" || echo "No version bump would occur"
+
+  files:
+    desc: "Show which files contain version info"
+    cmds:
+      - |
+        echo "📄 Version files (from pyproject.toml commitizen config):"
+        echo ""
+        echo "1. pyproject.toml (project.version)"
+        grep -n 'version = ' pyproject.toml | head -1
+        echo ""
+        echo "2. pyproject.toml (tool.commitizen.version)"
+        grep -n 'version = ' pyproject.toml | grep commitizen -A 1 | grep version
+        echo ""
+        echo "3. src/py_netatmo_truetemp/__init__.py"
+        grep -n '__version__' src/py_netatmo_truetemp/__init__.py || echo "   (not found)"
+
+  sync-check:
+    desc: "Verify all version files are in sync"
+    cmds:
+      - |
+        echo "🔍 Checking version synchronization..."
+        V1=$(grep -m1 'version = "' pyproject.toml | cut -d'"' -f2)
+        V2=$(grep 'version = "' pyproject.toml | tail -1 | cut -d'"' -f2)
+        V3=$(grep '__version__ = ' src/py_netatmo_truetemp/__init__.py | cut -d'"' -f2)
+
+        echo "pyproject.toml [project]:        $V1"
+        echo "pyproject.toml [tool.commitizen]: $V2"
+        echo "__init__.py:                      $V3"
+        echo ""
+
+        if [ "$V1" = "$V2" ] && [ "$V2" = "$V3" ]; then
+          echo "✅ All versions are in sync!"
+        else
+          echo "❌ Version mismatch detected!"
+          exit 1
+        fi
