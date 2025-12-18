@@ -47,17 +47,43 @@ jobs:
       - name: Install dependencies
         run: uv sync --frozen
 
-      - name: Create bump and changelog
+      - name: Run commitizen bump
         id: cz
-        uses: commitizen-tools/commitizen-action@master
+        run: |
+          cz bump --yes --changelog
+          echo "version=$(cz version -p)" >> $GITHUB_OUTPUT
+          echo "revision=$(git log -1 --pretty=%B)" >> $GITHUB_OUTPUT
+        env:
+          GIT_AUTHOR_NAME: "py-netatmo-truetemp-release-bot[bot]"
+          GIT_AUTHOR_EMAIL: "py-netatmo-truetemp-release-bot[bot]@users.noreply.github.com"
+          GIT_COMMITTER_NAME: "py-netatmo-truetemp-release-bot[bot]"
+          GIT_COMMITTER_EMAIL: "py-netatmo-truetemp-release-bot[bot]@users.noreply.github.com"
+
+      - name: Get changed files
+        if: steps.cz.outputs.version != ''
+        id: changed-files
+        run: |
+          FILES=$(git diff --name-only HEAD~1)
+          echo "files<<EOF" >> $GITHUB_OUTPUT
+          echo "$FILES" >> $GITHUB_OUTPUT
+          echo "EOF" >> $GITHUB_OUTPUT
+
+      - name: Reset commit
+        if: steps.cz.outputs.version != ''
+        run: |
+          git reset --soft HEAD~1
+
+      - name: Create signed commit via GitHub API
+        if: steps.cz.outputs.version != ''
+        uses: suzuki-shunsuke/verified-bot-commit@v1
         with:
-          github_token: ${{ steps.app-token.outputs.token }}
-          push: true
-          branch: main
-          changelog: true
-          gpg_sign: true
-          git_name: "py-netatmo-truetemp-release-bot[bot]"
-          git_email: "py-netatmo-truetemp-release-bot[bot]@users.noreply.github.com"
+          github-token: ${{ steps.app-token.outputs.token }}
+          commit-message: ${{ steps.cz.outputs.revision }}
+
+      - name: Push tags
+        if: steps.cz.outputs.version != ''
+        run: |
+          git push origin --tags
 
       - name: Extract changelog for release
         if: steps.cz.outputs.version != ''
