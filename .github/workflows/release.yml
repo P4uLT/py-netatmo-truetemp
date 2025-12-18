@@ -41,10 +41,13 @@ jobs:
         run: uv sync --frozen
 
       - name: Import GPG key
-        run: |
-          echo "${{ secrets.GPG_PRIVATE_KEY }}" | base64 --decode | gpg --batch --import
-          git config --global user.signingkey ${{ secrets.GPG_KEY_ID }}
-          git config --global commit.gpgsign true
+        uses: crazy-max/ghaction-import-gpg@v6
+        with:
+          gpg_private_key: ${{ secrets.GPG_PRIVATE_KEY }}
+          passphrase: ${{ secrets.GPG_PASSPHRASE }}
+          git_user_signingkey: true
+          git_commit_gpgsign: true
+          trust_level: 5
 
       - name: Create bump and changelog
         id: cz
@@ -55,8 +58,8 @@ jobs:
           branch: main
           changelog: true
           gpg_sign: true
-          git_name: "github-actions[bot]"
-          git_email: "github-actions[bot]@users.noreply.github.com"
+          git_name: "P4uLT"
+          git_email: "7680607+P4uLT@users.noreply.github.com"
 
       - name: Extract changelog for release
         if: steps.cz.outputs.version != ''
