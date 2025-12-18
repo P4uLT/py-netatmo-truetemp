@@ -21,6 +21,123 @@ uv sync                    # Install dependencies
 python -m py_compile src/py_netatmo_truetemp/*.py
 ```
 
+## Release Automation
+
+This project uses automated releases with commitizen and GitHub Actions. The system handles versioning, changelog generation, and publishing to PyPI.
+
+### Quick Start
+
+**Automatic Releases** (Recommended):
+```bash
+# 1. Make changes with conventional commits
+git commit -m "feat: add new feature"
+git commit -m "fix: resolve bug"
+
+# 2. Push to main - automatic release happens
+git push origin main
+
+# GitHub Actions automatically:
+# - Bumps version based on commits
+# - Updates CHANGELOG.md
+# - Creates git tag
+# - Creates GitHub Release
+# - Publishes to PyPI
+```
+
+**Manual Local Releases** (Testing/Emergency):
+```bash
+# Preview what would happen
+task release:dry-run
+task git:unreleased
+
+# Create release locally
+task release:bump          # Auto-detect version
+task release:major         # Force major bump
+task release:minor         # Force minor bump
+task release:patch         # Force patch bump
+
+# Push to trigger automation
+task release:push
+```
+
+### Taskfile Commands
+
+This project uses [Taskfile](https://taskfile.dev/) for automation. Run `task --list` to see all available commands or `task help:guide` for detailed help.
+
+**Key task namespaces**:
+- `task release:*` - Release operations (bump, dry-run, push)
+- `task version:*` - Version utilities (current, history, next)
+- `task changelog:*` - Changelog operations (show, preview, latest)
+- `task git:*` - Git utilities (log, status, unreleased)
+- `task help:*` - Help and documentation
+
+### Conventional Commits
+
+All commits must follow [Conventional Commits](https://www.conventionalcommits.org/) format (enforced by pre-commit hooks):
+
+```
+<type>[optional scope]: <description>
+
+[optional body]
+
+[optional footer(s)]
+```
+
+**Common types**:
+- `feat:` - New feature (minor version bump: 0.1.0 → 0.2.0)
+- `fix:` - Bug fix (patch version bump: 0.1.0 → 0.1.1)
+- `feat!:` - Breaking change (major version bump: 0.1.0 → 1.0.0)
+- `docs:` - Documentation (no version bump)
+- `refactor:` - Code refactoring (no version bump)
+- `test:`, `chore:`, `ci:` - Other changes (no version bump)
+
+**Examples**:
+```bash
+git commit -m "feat: add temperature scheduling"
+git commit -m "fix: handle auth timeout errors"
+git commit -m "feat!: redesign API interface"
+git commit -m "docs: update installation guide"
+```
+
+### Configuration Files
+
+**`.github/workflows/release.yml`** - Automated release workflow:
+- Triggers on push to main branch
+- Uses commitizen-action to analyze commits and bump versions
+- Updates `pyproject.toml`, `__init__.py`, and `CHANGELOG.md`
+- Creates git tags and GitHub Releases
+- Triggers PyPI publishing workflow
+
+**`Taskfile.yml`** - Task automation:
+- Modular structure with separate task files in `tasks/` directory
+- `tasks/release/` - Release operations
+- `tasks/version/` - Version utilities
+- `tasks/changelog/` - Changelog operations
+- `tasks/git/` - Git utilities
+- `tasks/help/` - Help and documentation
+
+**`.pre-commit-config.yaml`** - Pre-commit hooks:
+- Enforces conventional commit message format
+- Runs file format checks (trailing whitespace, end-of-file-fixer)
+- Validates YAML and TOML syntax
+
+**`pyproject.toml`** - Commitizen configuration:
+```toml
+[tool.commitizen]
+name = "cz_conventional_commits"
+version = "0.1.0"
+version_files = [
+    "pyproject.toml:project.version",
+    "pyproject.toml:tool.commitizen.version",
+    "src/py_netatmo_truetemp/__init__.py:__version__",
+]
+tag_format = "v$version"
+update_changelog_on_bump = true
+changelog_file = "CHANGELOG.md"
+```
+
+For complete workflow documentation, troubleshooting, and best practices, see **`RELEASE_WORKFLOW_GUIDE.md`**.
+
 ## CLI Examples
 
 The `examples/` folder contains demonstration applications showing how to use the library. Each example has its own isolated environment and configuration.
@@ -200,9 +317,20 @@ examples/                   # Independent examples folder
 - Use modern Python 3.13+ type hints (`Type | None`, `dict[K, V]`, `list[T]`)
 - TypedDict for structured API responses
 
+**Commit Messages**:
+- All commits must follow Conventional Commits format (enforced by pre-commit hooks)
+- Use semantic commit types: `feat:`, `fix:`, `docs:`, `refactor:`, `test:`, `chore:`, `ci:`
+- Breaking changes: Use `!` suffix (e.g., `feat!:`) or `BREAKING CHANGE:` footer
+- See "Release Automation" section for detailed commit message guidelines
+
 **Testing**:
 - Test library changes using example applications
 - Validate with `python -m py_compile src/py_netatmo_truetemp/*.py`
+
+**Pre-commit Hooks**:
+- Install hooks: `uv run pre-commit install`
+- Hooks automatically validate commit messages, file formatting, and syntax
+- Run manually: `uv run pre-commit run --all-files`
 
 ## Using the Library
 
@@ -259,3 +387,6 @@ api = NetatmoAPI(
 - **`examples/CLAUDE.md`** - CLI setup, usage, and development workflow
 - **`src/py_netatmo_truetemp/__init__.py`** - Public API exports
 - **`pyproject.toml`** - Build configuration and dependencies
+- **`RELEASE_WORKFLOW_GUIDE.md`** - Complete release automation documentation, troubleshooting, and workflow details
+- **`Taskfile.yml`** - Task automation commands and configuration
+- **`.github/workflows/release.yml`** - Automated release workflow definition

@@ -235,9 +235,34 @@ python -m py_compile src/py_netatmo_truetemp/*.py
 
 The `examples/` folder contains independent applications for testing library changes. See [`examples/README.md`](examples/README.md) for setup and usage instructions.
 
+### Release Automation
+
+This project uses automated releases with commitizen and GitHub Actions. The release workflow is fully automated:
+
+```bash
+# View available release commands
+task help
+
+# Create a new release (automated version bump + changelog + git tag)
+task release
+
+# Manual version operations
+task version:bump-patch    # 0.1.0 -> 0.1.1
+task version:bump-minor    # 0.1.0 -> 0.2.0
+task version:bump-major    # 0.1.0 -> 1.0.0
+```
+
+All commits must follow [Conventional Commits](https://www.conventionalcommits.org/) format:
+- `feat:` - New features (minor version bump)
+- `fix:` - Bug fixes (patch version bump)
+- `feat!:` or `BREAKING CHANGE:` - Breaking changes (major version bump)
+
+Pre-commit hooks enforce commit message validation. For complete release workflow documentation, see [RELEASE_WORKFLOW_GUIDE.md](RELEASE_WORKFLOW_GUIDE.md).
+
 ## Documentation
 
 - [CLAUDE.md](CLAUDE.md) - Core library architecture and development guide
+- [RELEASE_WORKFLOW_GUIDE.md](RELEASE_WORKFLOW_GUIDE.md) - Release automation and workflow guide
 - [examples/README.md](examples/README.md) - CLI setup and usage instructions
 - [examples/CLAUDE.md](examples/CLAUDE.md) - CLI development workflow
 
@@ -249,12 +274,16 @@ Contributions are welcome! Please read our [Contributing Guide](CONTRIBUTING.md)
 - Development setup
 - Running tests
 - Code style guidelines
+- Conventional commit message format (required)
 - Submitting pull requests
+
+All commits must follow the [Conventional Commits](https://www.conventionalcommits.org/) format. Pre-commit hooks will validate your commit messages automatically.
 
 See also:
 - [Code of Conduct](CODE_OF_CONDUCT.md)
 - [Security Policy](SECURITY.md)
 - [Changelog](CHANGELOG.md)
+- [Release Workflow Guide](RELEASE_WORKFLOW_GUIDE.md)
 
 ## Support
 
