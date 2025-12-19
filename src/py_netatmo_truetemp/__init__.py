@@ -9,7 +9,10 @@ Example:
     >>> api.set_truetemperature(room_id="123", corrected_temperature=20.5)
 """
 
-__version__ = "0.1.0"
+try:
+    from ._version import __version__
+except ImportError:
+    __version__ = "0.0.0+unknown"
 
 from .netatmo_api import NetatmoAPI
 from .auth_manager import AuthenticationManager

@@ -1,10 +1,10 @@
 [build-system]
-requires = ["hatchling"]
+requires = ["hatchling", "hatch-vcs"]
 build-backend = "hatchling.build"
 
 [project]
 name = "py-netatmo-truetemp"
-version = "0.1.0"
+dynamic = ["version"]
 description = "Python client for Netatmo API with truetemperature control - set room temperatures programmatically"
 readme = "README.md"
 requires-python = ">=3.13"
@@ -64,3 +64,10 @@ dev = [
 
 [tool.hatch.build.targets.wheel]
 packages = ["src/py_netatmo_truetemp"]
+
+[tool.hatch.version]
+source = "vcs"
+fallback-version = "0.0.0"
+
+[tool.hatch.build.hooks.vcs]
+version-file = "src/py_netatmo_truetemp/_version.py"
