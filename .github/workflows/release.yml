@@ -33,6 +33,11 @@ jobs:
           fetch-tags: true
           token: ${{ steps.app-token.outputs.token }}
 
+      - name: Configure git for GitHub App
+        run: |
+          git config --global user.name "py-netatmo-truetemp-release-bot[bot]"
+          git config --global user.email "${{ secrets.APP_ID }}+py-netatmo-truetemp-release-bot[bot]@users.noreply.github.com"
+
       - name: Set up Python 3.13
         uses: actions/setup-python@v6
         with:
@@ -72,5 +77,3 @@ jobs:
           commit_message: "chore(release): ${{ steps.semantic.outputs.new_release_version }} [skip ci]"
           file_pattern: "CHANGELOG.md pyproject.toml src/py_netatmo_truetemp/__init__.py"
           tagging_message: "v${{ steps.semantic.outputs.new_release_version }}"
-          commit_user_name: "py-netatmo-truetemp-release-bot[bot]"
-          commit_user_email: "${{ secrets.APP_ID }}+py-netatmo-truetemp-release-bot[bot]@users.noreply.github.com"
