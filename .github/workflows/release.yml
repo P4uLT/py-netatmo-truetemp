@@ -53,12 +53,25 @@ jobs:
           node-version: 20
 
       - name: Semantic Release
+        id: semantic
         uses: cycjimmy/semantic-release-action@v4
         with:
           extra_plugins: |
             @semantic-release/changelog
-            @semantic-release/git
             @semantic-release/exec
             conventional-changelog-conventionalcommits
         env:
           GITHUB_TOKEN: ${{ steps.app-token.outputs.token }}
+
+      - name: Commit and push changes
+        if: steps.semantic.outputs.new_release_published == 'true'
+        uses: stefanzweifel/git-auto-commit-action@v5
+        env:
+          GITHUB_TOKEN: ${{ steps.app-token.outputs.token }}
+        with:
+          commit_message: "chore(release): ${{ steps.semantic.outputs.new_release_version }} [skip ci]"
+          file_pattern: "CHANGELOG.md pyproject.toml src/py_netatmo_truetemp/__init__.py"
+          tagging_message: "v${{ steps.semantic.outputs.new_release_version }}"
+          commit_user_name: "github-actions[bot]"
+          commit_user_email: "github-actions[bot]@users.noreply.github.com"
+          commit_author: "github-actions[bot] <github-actions[bot]@users.noreply.github.com>"
