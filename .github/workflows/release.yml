@@ -72,6 +72,5 @@ jobs:
           commit_message: "chore(release): ${{ steps.semantic.outputs.new_release_version }} [skip ci]"
           file_pattern: "CHANGELOG.md pyproject.toml src/py_netatmo_truetemp/__init__.py"
           tagging_message: "v${{ steps.semantic.outputs.new_release_version }}"
-          commit_user_name: "github-actions[bot]"
-          commit_user_email: "github-actions[bot]@users.noreply.github.com"
-          commit_author: "github-actions[bot] <github-actions[bot]@users.noreply.github.com>"
+          commit_user_name: "semantic-release-bot[bot]"
+          commit_user_email: "${{ secrets.APP_ID }}+semantic-release-bot[bot]@users.noreply.github.com"
