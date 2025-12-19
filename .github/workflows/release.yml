@@ -76,3 +76,6 @@ jobs:
         with:
           commit_message: "chore(release): ${{ steps.semantic.outputs.new_release_version }} [skip ci]"
           file_pattern: "CHANGELOG.md pyproject.toml src/py_netatmo_truetemp/__init__.py"
+          commit_user_name: "py-netatmo-truetemp-release-bot[bot]"
+          commit_user_email: "${{ secrets.APP_ID }}+py-netatmo-truetemp-release-bot[bot]@users.noreply.github.com"
+          commit_author: "py-netatmo-truetemp-release-bot[bot] <${{ secrets.APP_ID }}+py-netatmo-truetemp-release-bot[bot]@users.noreply.github.com>"
