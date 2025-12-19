@@ -6,6 +6,9 @@ dist/
 wheels/
 *.egg-info
 
+# Generated version file (hatch-vcs)
+src/py_netatmo_truetemp/_version.py
+
 # Type checking cache
 .mypy_cache/
 
