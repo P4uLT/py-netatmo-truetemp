@@ -1,3 +1,9 @@
+## [0.2.1](https://github.com/py-netatmo-unofficial/py-netatmo-truetemp/compare/v0.2.0...v0.2.1) (2026-01-13)
+
+### Bug Fixes
+
+* **ci:** use git config for release author ([#46](https://github.com/py-netatmo-unofficial/py-netatmo-truetemp/issues/46)) ([325ac66](https://github.com/py-netatmo-unofficial/py-netatmo-truetemp/commit/325ac6672b7e57665882df588c94516371ef4b31))
+
 ## [0.2.0](https://github.com/py-netatmo-unofficial/py-netatmo-truetemp/compare/v0.1.0...v0.2.0) (2026-01-13)
 
 ### Features
