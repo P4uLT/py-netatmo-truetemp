@@ -38,7 +38,33 @@ Enhancement suggestions are tracked as GitHub issues. When creating an enhanceme
 4. **Add tests** for new functionality
 5. **Update documentation** if needed
 6. **Run the full test suite** to ensure everything passes
-7. **Submit a pull request** with a clear description
+7. **Sign your commits** (required by GitHub ruleset)
+8. **Submit a pull request** with a clear description
+
+#### Pull Request Requirements
+
+**Your PR cannot merge until all these requirements are met**:
+
+- ✅ All CI checks must pass (`ci-success` status check required)
+- ✅ All commits must be signed (GPG/SSH signature required)
+- ✅ Commits must follow Conventional Commits format
+- ✅ Code must pass linting, type checking, and tests
+- ✅ PR must be approved (if required by repository settings)
+
+**If your PR is blocked from merging**:
+
+1. **Check CI Status**: Click the "Checks" tab in your PR to see which checks failed
+2. **Review Error Logs**: Click "Details" next to the failed check to see error messages
+3. **Fix Issues Locally**: Make changes to fix the failing checks
+4. **Commit and Push**: Commit your fixes and push to your PR branch
+5. **Wait for CI**: CI will automatically re-run when you push new commits
+6. **Merge When Green**: Once all checks pass, the merge button will unlock
+
+**Common CI Failures**:
+- Linting errors → Run `uv run ruff check --fix src/ tests/`
+- Type errors → Run `uv run mypy src/py_netatmo_truetemp/` and fix issues
+- Test failures → Run `uv run pytest tests/ -v` and fix failing tests
+- Unsigned commits → Configure commit signing (see below)
 
 ## Development Setup
 
@@ -63,6 +89,50 @@ uv sync
 source .venv/bin/activate  # Linux/macOS
 # or
 .venv\Scripts\activate  # Windows
+
+# Install pre-commit hooks
+uv run pre-commit install
+```
+
+### Configuring Commit Signing (Required)
+
+All commits must be signed with GPG or SSH. This ensures commit authenticity.
+
+**Option 1: GPG Signing**
+```bash
+# Generate GPG key (if you don't have one)
+gpg --full-generate-key
+
+# List your GPG keys
+gpg --list-secret-keys --keyid-format=long
+
+# Configure Git to use GPG signing
+git config --global user.signingkey YOUR_KEY_ID
+git config --global commit.gpgsign true
+
+# Add GPG key to GitHub
+gpg --armor --export YOUR_KEY_ID
+# Copy the output and add it to GitHub Settings → SSH and GPG keys
+```
+
+**Option 2: SSH Signing (Simpler)**
+```bash
+# Configure Git to use SSH signing
+git config --global gpg.format ssh
+git config --global user.signingkey ~/.ssh/id_ed25519.pub
+git config --global commit.gpgsign true
+
+# Add your SSH public key to GitHub as a signing key
+# GitHub Settings → SSH and GPG keys → New SSH key → Key type: Signing Key
+```
+
+**Verify signing is working**:
+```bash
+# Make a test commit
+git commit --allow-empty -m "test: verify commit signing"
+
+# Verify the commit is signed
+git log --show-signature -1
 ```
 
 ### Running Tests
@@ -386,13 +456,36 @@ To add new functionality (e.g., camera support):
 
 ## Release Process
 
-Maintainers follow this process for releases:
+**Releases are fully automated** - contributors don't need to manage versions manually!
 
-1. Update version in `pyproject.toml`
-2. Update `CHANGELOG.md` with release notes
-3. Create git tag: `git tag v0.2.0`
-4. Push tag: `git push origin v0.2.0`
-5. GitHub Actions automatically publishes to PyPI
+### How Releases Work
+
+When your PR merges to `main`:
+
+1. **semantic-release** analyzes conventional commit messages
+2. If release-worthy (`feat:`, `fix:`, `perf:`), it determines the version bump
+3. `CHANGELOG.md` is automatically updated with release notes
+4. A git tag is created with verified signature (via GitHub App)
+5. GitHub Release is created with changelog
+6. Package is automatically published to PyPI
+
+### What Triggers a Release
+
+| Commit Type | Version Bump | Example |
+|-------------|--------------|---------|
+| `feat:` | Minor (0.1.0 → 0.2.0) | New features |
+| `fix:` | Patch (0.1.0 → 0.1.1) | Bug fixes |
+| `perf:` | Patch (0.1.0 → 0.1.1) | Performance improvements |
+| `feat!:` or `BREAKING CHANGE:` | Major (0.1.0 → 1.0.0) | Breaking changes |
+| `docs:`, `refactor:`, `test:`, `chore:` | No release | Non-user-facing changes |
+
+### Your Contribution Will Appear In
+
+- `CHANGELOG.md` - Your commit message becomes a changelog entry
+- GitHub Releases - Listed in the release notes
+- PyPI Package - Included in the published package
+
+**Note**: Only commits that trigger releases appear in CHANGELOG.md. Documentation and refactoring commits don't create releases.
 
 ## Questions?
 

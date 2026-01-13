@@ -114,6 +114,34 @@ git commit -m "docs: update installation guide"
 
 For complete workflow documentation, troubleshooting, and best practices, see **`RELEASE_WORKFLOW_GUIDE.md`**.
 
+### Release Workflow Requirements
+
+**GitHub Ruleset Protection**:
+- All changes must go through Pull Requests
+- **CI must pass** (`ci-success` status check) before merge
+- All commits must be signed (GPG/SSH)
+- No direct pushes to main branch
+- Merge blocked until all quality gates pass
+
+**If your PR is blocked from merging**:
+1. Check CI status in the "Checks" tab of your PR
+2. Fix any failing tests, linting issues, or type errors
+3. Push fixes to your PR branch
+4. CI will automatically re-run
+5. Merge button unlocks when all checks pass
+
+**Quality Gates** (all must pass):
+- Ruff linting and formatting
+- mypy type checking
+- pytest tests with coverage (Ubuntu, macOS, Windows)
+- Security scan (bandit)
+- Package build verification
+
+**Emergency Bypass** (use sparingly):
+- Repository admins can bypass ruleset for critical security fixes
+- Release bot (GitHub App) can bypass for automated releases
+- Document reason in commit message if bypassing
+
 ## CLI Examples
 
 The `examples/` folder contains demonstration applications showing how to use the library. Each example has its own isolated environment and configuration.
