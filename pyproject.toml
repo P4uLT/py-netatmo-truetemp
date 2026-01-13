@@ -71,3 +71,6 @@ fallback-version = "0.0.0"
 
 [tool.hatch.build.hooks.vcs]
 version-file = "src/py_netatmo_truetemp/_version.py"
+
+[tool.ruff]
+extend-exclude = ["src/py_netatmo_truetemp/_version.py"]
