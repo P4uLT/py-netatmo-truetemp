@@ -1,3 +1,9 @@
+## [0.2.2](https://github.com/py-netatmo-unofficial/py-netatmo-truetemp/compare/v0.2.1...v0.2.2) (2026-01-13)
+
+### Bug Fixes
+
+* **ci:** use official git env vars and fix publish trigger ([#48](https://github.com/py-netatmo-unofficial/py-netatmo-truetemp/issues/48)) ([b231a1e](https://github.com/py-netatmo-unofficial/py-netatmo-truetemp/commit/b231a1ea64dbf82b5e609962308bcbdaad062b33))
+
 ## [0.2.1](https://github.com/py-netatmo-unofficial/py-netatmo-truetemp/compare/v0.2.0...v0.2.1) (2026-01-13)
 
 ### Bug Fixes
