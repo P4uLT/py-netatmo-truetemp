@@ -33,6 +33,12 @@ jobs:
         env:
           GH_TOKEN: ${{ steps.app-token.outputs.token }}
 
+      - name: Set Git Bot Identity
+        id: git-bot
+        run: |
+          echo "name=${{ steps.app-token.outputs.app-slug }}[bot]" >> "$GITHUB_OUTPUT"
+          echo "email=${{ steps.get-user-id.outputs.user-id }}+${{ steps.app-token.outputs.app-slug }}[bot]@users.noreply.github.com" >> "$GITHUB_OUTPUT"
+
       - name: Checkout code
         uses: actions/checkout@v6
         with:
@@ -43,8 +49,10 @@ jobs:
           persist-credentials: false
       - name: Configure git for GitHub App
         run: |
-          git config --global user.name '${{ steps.app-token.outputs.app-slug }}[bot]'
-          git config --global user.email '${{ steps.get-user-id.outputs.user-id }}+${{ steps.app-token.outputs.app-slug }}[bot]@users.noreply.github.com'
+          # Configure git identity for semantic-release commits
+          # Note: .releaserc.json must have "author": false to respect git config
+          git config --global user.name '${{ steps.git-bot.outputs.name }}'
+          git config --global user.email '${{ steps.git-bot.outputs.email }}'
 
       - name: Set up Python 3.13
         uses: actions/setup-python@v6
