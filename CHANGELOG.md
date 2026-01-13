@@ -1,3 +1,9 @@
+## [0.3.0](https://github.com/py-netatmo-unofficial/py-netatmo-truetemp/compare/v0.2.2...v0.3.0) (2026-01-13)
+
+### Features
+
+* **ci:** use GitHub Contents API for verified commits ([#49](https://github.com/py-netatmo-unofficial/py-netatmo-truetemp/issues/49)) ([9c554b7](https://github.com/py-netatmo-unofficial/py-netatmo-truetemp/commit/9c554b7993d394c6a39fb6f3d4a0cc7ab64f0717))
+
 ## [0.2.2](https://github.com/py-netatmo-unofficial/py-netatmo-truetemp/compare/v0.2.1...v0.2.2) (2026-01-13)
 
 ### Bug Fixes
