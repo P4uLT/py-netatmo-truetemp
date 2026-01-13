@@ -242,6 +242,96 @@ git commit -m "docs: update README [skip ci]"
 
 Note: Only use for documentation or non-code changes. Semantic-release already handles this for release commits.
 
+### PR Cannot Merge - CI Status Check Blocking
+
+**Symptom**: "Merging is blocked - Required status check 'ci-success' is pending/failing"
+
+**Cause**: CI hasn't completed or has failed. GitHub ruleset requires all CI checks to pass before merge.
+
+**Solution**:
+1. Click "Details" next to the failed check in your PR
+2. Review error logs to identify the issue
+3. Fix issues locally:
+   - **Linting errors**: `uv run ruff check --fix src/ tests/`
+   - **Type errors**: `uv run mypy src/py_netatmo_truetemp/` and fix reported issues
+   - **Test failures**: `uv run pytest tests/ -v` and fix failing tests
+   - **Format issues**: `uv run ruff format src/ tests/`
+4. Commit fixes and push to your PR branch
+5. CI will automatically re-run
+6. Merge button unlocks when all checks pass
+
+**Prevention**: Run all checks locally before pushing:
+```bash
+uv run pre-commit run --all-files
+uv run pytest tests/ -v
+```
+
+### PyPI Publish Failed
+
+**Symptom**: Release workflow completes but PyPI publish workflow fails
+
+**Cause**: Version already exists on PyPI, or OIDC token issue
+
+**Solution**:
+1. Check if version already exists:
+   ```bash
+   pip index versions py-netatmo-truetemp
+   ```
+2. If version exists: semantic-release prevented duplicate (expected behavior)
+3. If OIDC issue:
+   - Verify PyPI trusted publisher settings at https://pypi.org/manage/project/py-netatmo-truetemp/settings/publishing/
+   - Ensure GitHub Actions workflow name matches trusted publisher configuration
+   - Check workflow has `id-token: write` permission
+
+**Recovery**: Re-run the failed workflow manually (workflows are idempotent)
+
+### Commit Not Signed
+
+**Symptom**: "Required signatures not satisfied" - PR merge blocked
+
+**Cause**: Commit lacks GPG/SSH signature. GitHub ruleset requires all commits to be signed.
+
+**Solution**:
+```bash
+# Option 1: Configure GPG signing
+git config --global commit.gpgsign true
+git config --global user.signingkey YOUR_GPG_KEY_ID
+
+# Option 2: Configure SSH signing (simpler)
+git config --global gpg.format ssh
+git config --global user.signingkey ~/.ssh/id_ed25519.pub
+git config --global commit.gpgsign true
+
+# Amend last commit with signature
+git commit --amend --no-edit -S
+git push --force-with-lease
+
+# Or create new commit
+git commit --allow-empty -m "chore: trigger CI with signed commit" -S
+git push
+```
+
+**Add signing key to GitHub**:
+- Settings → SSH and GPG keys → New GPG key (or New SSH key with type: Signing Key)
+
+### Release Created But No PyPI Package
+
+**Symptom**: GitHub Release exists, but package not on PyPI
+
+**Cause**: PyPI publish workflow didn't trigger or failed
+
+**Solution**:
+1. Check Actions tab for "Publish to PyPI" workflow
+2. Verify workflow was triggered by tag creation
+3. If workflow missing: Check `.github/workflows/publish.yml` trigger is `on: push: tags: - 'v*.*.*'`
+4. If workflow failed: Check logs for OIDC or build errors
+5. Manual publish (emergency only):
+   ```bash
+   git checkout v0.2.0  # checkout the release tag
+   uv build
+   uv run twine upload dist/*  # requires PyPI token
+   ```
+
 ## Emergency Procedures
 
 ### Critical Bug in Latest Release

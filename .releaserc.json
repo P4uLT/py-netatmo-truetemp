@@ -46,24 +46,16 @@
     [
       "@semantic-release/changelog",
       {
-        "changelogFile": "CHANGELOG.md",
-        "changelogTitle": "# Changelog\n\nAll notable changes to this project will be documented in this file.\n\nThe format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),\nand this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html)."
+        "changelogFile": "CHANGELOG.md"
       }
     ],
     [
-      "@semantic-release/exec",
+      "@semantic-release/git",
       {
-        "prepareCmd": "sed -i 's/^version = \".*\"/version = \"${nextRelease.version}\"/' pyproject.toml && sed -i 's/__version__ = \".*\"/__version__ = \"${nextRelease.version}\"/' src/py_netatmo_truetemp/__init__.py"
+        "assets": ["CHANGELOG.md"],
+        "message": "chore(release): ${nextRelease.version} [skip ci]\n\n${nextRelease.notes}"
       }
     ],
-    [
-      "@semantic-release/github",
-      {
-        "successComment": false,
-        "failComment": false,
-        "labels": ["release"],
-        "releasedLabels": ["released"]
-      }
-    ]
+    "@semantic-release/github"
   ]
 }
