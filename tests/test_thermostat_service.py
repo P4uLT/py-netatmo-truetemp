@@ -170,6 +170,18 @@ class TestSetRoomTemperature:
         mock_home_service = Mock()
         mock_api_client = Mock()
 
+        # Mock get_homes_data for room name lookup
+        mock_home_service.get_homes_data.return_value = {
+            "body": {
+                "homes": [
+                    {
+                        "id": "home-123",
+                        "rooms": [{"id": "room-1", "name": "Living Room"}],
+                    }
+                ]
+            }
+        }
+
         mock_home_service.get_home_status.return_value = {
             "body": {
                 "home": {
@@ -238,6 +250,18 @@ class TestSetRoomTemperature:
         # Arrange
         mock_home_service = Mock()
         mock_api_client = Mock()
+
+        # Mock get_homes_data for room name lookup
+        mock_home_service.get_homes_data.return_value = {
+            "body": {
+                "homes": [
+                    {
+                        "id": "home-123",
+                        "rooms": [{"id": "room-2", "name": "Other Room"}],
+                    }
+                ]
+            }
+        }
 
         # Return status without the requested room
         mock_home_service.get_home_status.return_value = {
