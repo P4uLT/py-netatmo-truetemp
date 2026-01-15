@@ -287,7 +287,7 @@ src/py_netatmo_truetemp/    # Installable library package
 
 **Build Configuration**: The `pyproject.toml` includes `[build-system]` configuration using Hatchling, making the library installable via pip.
 
-**Usage Examples**: For example applications built with this library, see the [py-netatmo-truetemp-cli](https://github.com/P4uLT/py-netatmo-truetemp-cli) repository.
+**Usage Examples**: For example applications built with this library, see the [py-netatmo-truetemp-cli](https://github.com/py-netatmo-unofficial/py-netatmo-truetemp-cli) repository.
 
 ## Development Guidelines
 

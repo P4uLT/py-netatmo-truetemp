@@ -161,7 +161,7 @@ After pushing to main:
 2. Click on the **Release** workflow run
 3. Monitor the steps in real-time
 
-Direct link: `https://github.com/P4uLT/py-netatmo-truetemp/actions`
+Direct link: `https://github.com/py-netatmo-unofficial/py-netatmo-truetemp/actions`
 
 ### Verify Release Success
 

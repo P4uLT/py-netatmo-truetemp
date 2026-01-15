@@ -1,6 +1,6 @@
 # py-netatmo-truetemp
 
-[![CI](https://github.com/P4uLT/py-netatmo-truetemp/actions/workflows/ci.yml/badge.svg)](https://github.com/P4uLT/py-netatmo-truetemp/actions/workflows/ci.yml)
+[![CI](https://github.com/py-netatmo-unofficial/py-netatmo-truetemp/actions/workflows/ci.yml/badge.svg)](https://github.com/py-netatmo-unofficial/py-netatmo-truetemp/actions/workflows/ci.yml)
 [![Python 3.13+](https://img.shields.io/badge/python-3.13+-blue.svg)](https://www.python.org/downloads/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![codecov](https://codecov.io/gh/p4ult/py-netatmo-truetemp/graph/badge.svg)](https://codecov.io/gh/p4ult/py-netatmo-truetemp)
@@ -41,7 +41,7 @@ A Python client for the Netatmo API with **truetemperature** control - set room 
 
 ```bash
 # Clone the repository
-git clone https://github.com/P4uLT/py-netatmo-truetemp.git
+git clone https://github.com/py-netatmo-unofficial/py-netatmo-truetemp.git
 cd py-netatmo-truetemp
 
 # Create virtual environment and install
@@ -53,7 +53,7 @@ uv sync
 
 ```bash
 # Install from GitHub (until PyPI release)
-uv add "py-netatmo-truetemp @ git+https://github.com/P4uLT/py-netatmo-truetemp.git"
+uv add "py-netatmo-truetemp @ git+https://github.com/py-netatmo-unofficial/py-netatmo-truetemp.git"
 ```
 
 ## Environment Variables
@@ -104,7 +104,7 @@ api.set_truetemperature(
 ### Command-Line Interface
 
 For a complete CLI application built with this library, see:
-- **[py-netatmo-truetemp-cli](https://github.com/P4uLT/py-netatmo-truetemp-cli)** - Full-featured CLI with Typer and Rich formatting
+- **[py-netatmo-truetemp-cli](https://github.com/py-netatmo-unofficial/py-netatmo-truetemp-cli)** - Full-featured CLI with Typer and Rich formatting
 
 The CLI demonstrates:
 - Environment-based configuration
@@ -275,10 +275,10 @@ See also:
 
 ## Support
 
-- **Bug Reports**: [Open an issue](https://github.com/P4uLT/py-netatmo-truetemp/issues/new?template=bug_report.yml)
-- **Feature Requests**: [Request a feature](https://github.com/P4uLT/py-netatmo-truetemp/issues/new?template=feature_request.yml)
+- **Bug Reports**: [Open an issue](https://github.com/py-netatmo-unofficial/py-netatmo-truetemp/issues/new?template=bug_report.yml)
+- **Feature Requests**: [Request a feature](https://github.com/py-netatmo-unofficial/py-netatmo-truetemp/issues/new?template=feature_request.yml)
 - **Security Issues**: See [SECURITY.md](SECURITY.md)
-- **Questions**: [GitHub Discussions](https://github.com/P4uLT/py-netatmo-truetemp/discussions)
+- **Questions**: [GitHub Discussions](https://github.com/py-netatmo-unofficial/py-netatmo-truetemp/discussions)
 
 ## License
 

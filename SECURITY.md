@@ -20,7 +20,7 @@ Please do not open a public GitHub issue for security vulnerabilities. Public di
 
 Report security vulnerabilities through one of these channels:
 
-- **GitHub Security Advisories** (preferred): Use the [Security tab](https://github.com/P4uLT/py-netatmo-truetemp/security/advisories/new) to create a private security advisory
+- **GitHub Security Advisories** (preferred): Use the [Security tab](https://github.com/py-netatmo-unofficial/py-netatmo-truetemp/security/advisories/new) to create a private security advisory
 - **Email**: Send details to the maintainer via GitHub profile contact
 
 ### 3. Include Detailed Information
