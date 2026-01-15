@@ -5,7 +5,7 @@ build-backend = "hatchling.build"
 [project]
 name = "py-netatmo-truetemp"
 dynamic = ["version"]
-description = "Python client for Netatmo API with truetemperature control - set room temperatures programmatically"
+description = "Netatmo's missing true temperature API - set real room temps programmatically"
 readme = "README.md"
 requires-python = ">=3.13"
 license = {text = "MIT"}
@@ -16,13 +16,17 @@ maintainers = [
     {name = "P4uLT", email = "P4uLT@users.noreply.github.com"},
 ]
 keywords = [
+    "truetemp",
+    "true-temperature",
+    "temperature-control",
     "netatmo",
     "thermostat",
     "smart-home",
-    "iot",
     "home-automation",
-    "temperature-control",
     "api-client",
+    "python-library",
+    "sdk",
+    "iot",
 ]
 classifiers = [
     "Development Status :: 4 - Beta",
@@ -42,11 +46,11 @@ dependencies = [
 ]
 
 [project.urls]
-Homepage = "https://github.com/P4uLT/py-netatmo-truetemp"
-Repository = "https://github.com/P4uLT/py-netatmo-truetemp"
-Issues = "https://github.com/P4uLT/py-netatmo-truetemp/issues"
-Changelog = "https://github.com/P4uLT/py-netatmo-truetemp/blob/main/CHANGELOG.md"
-Documentation = "https://github.com/P4uLT/py-netatmo-truetemp#readme"
+Homepage = "https://github.com/py-netatmo-unofficial/py-netatmo-truetemp"
+Repository = "https://github.com/py-netatmo-unofficial/py-netatmo-truetemp"
+Issues = "https://github.com/py-netatmo-unofficial/py-netatmo-truetemp/issues"
+Changelog = "https://github.com/py-netatmo-unofficial/py-netatmo-truetemp/blob/main/CHANGELOG.md"
+Documentation = "https://github.com/py-netatmo-unofficial/py-netatmo-truetemp#readme"
 
 [dependency-groups]
 dev = [

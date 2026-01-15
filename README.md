@@ -1,14 +1,16 @@
 # py-netatmo-truetemp
 
-[![CI](https://github.com/P4uLT/py-netatmo-truetemp/actions/workflows/ci.yml/badge.svg)](https://github.com/P4uLT/py-netatmo-truetemp/actions/workflows/ci.yml)
+[![PyPI version](https://badge.fury.io/py/py-netatmo-truetemp.svg)](https://pypi.org/project/py-netatmo-truetemp/)
+[![PyPI - Downloads](https://img.shields.io/pypi/dm/py-netatmo-truetemp)](https://pypi.org/project/py-netatmo-truetemp/)
+[![CI](https://github.com/py-netatmo-unofficial/py-netatmo-truetemp/actions/workflows/ci.yml/badge.svg)](https://github.com/py-netatmo-unofficial/py-netatmo-truetemp/actions/workflows/ci.yml)
 [![Python 3.13+](https://img.shields.io/badge/python-3.13+-blue.svg)](https://www.python.org/downloads/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-[![codecov](https://codecov.io/gh/p4ult/py-netatmo-truetemp/graph/badge.svg)](https://codecov.io/gh/p4ult/py-netatmo-truetemp)
+[![codecov](https://codecov.io/gh/py-netatmo-unofficial/py-netatmo-truetemp/graph/badge.svg)](https://codecov.io/gh/py-netatmo-unofficial/py-netatmo-truetemp)
 [![Code style: ruff](https://img.shields.io/badge/code%20style-ruff-000000.svg)](https://github.com/astral-sh/ruff)
 [![Type checked: mypy](https://img.shields.io/badge/type%20checked-mypy-blue.svg)](https://mypy-lang.org/)
 [![Security: bandit](https://img.shields.io/badge/security-bandit-yellow.svg)](https://github.com/PyCQA/bandit)
 
-A Python client for the Netatmo API with **truetemperature** control - set room temperatures programmatically via the undocumented API endpoint.
+**Netatmo's missing true temperature API** - set real room temps programmatically via the undocumented truetemperature endpoint.
 
 ## ⚠️ Disclaimer
 
@@ -37,11 +39,22 @@ A Python client for the Netatmo API with **truetemperature** control - set room 
 
 ## Installation
 
+### From PyPI
+
+```bash
+pip install py-netatmo-truetemp
+```
+
+Or with uv:
+```bash
+uv add py-netatmo-truetemp
+```
+
 ### From Source
 
 ```bash
 # Clone the repository
-git clone https://github.com/P4uLT/py-netatmo-truetemp.git
+git clone https://github.com/py-netatmo-unofficial/py-netatmo-truetemp.git
 cd py-netatmo-truetemp
 
 # Create virtual environment and install
@@ -51,9 +64,14 @@ uv sync
 
 ### As a Dependency
 
+**From PyPI** (recommended):
 ```bash
-# Install from GitHub (until PyPI release)
-uv add "py-netatmo-truetemp @ git+https://github.com/P4uLT/py-netatmo-truetemp.git"
+uv add py-netatmo-truetemp
+```
+
+**From GitHub** (development version):
+```bash
+uv add "py-netatmo-truetemp @ git+https://github.com/py-netatmo-unofficial/py-netatmo-truetemp.git"
 ```
 
 ## Environment Variables
@@ -104,7 +122,7 @@ api.set_truetemperature(
 ### Command-Line Interface
 
 For a complete CLI application built with this library, see:
-- **[py-netatmo-truetemp-cli](https://github.com/P4uLT/py-netatmo-truetemp-cli)** - Full-featured CLI with Typer and Rich formatting
+- **[py-netatmo-truetemp-cli](https://github.com/py-netatmo-unofficial/py-netatmo-truetemp-cli)** - Full-featured CLI with Typer and Rich formatting
 
 The CLI demonstrates:
 - Environment-based configuration
@@ -275,10 +293,10 @@ See also:
 
 ## Support
 
-- **Bug Reports**: [Open an issue](https://github.com/P4uLT/py-netatmo-truetemp/issues/new?template=bug_report.yml)
-- **Feature Requests**: [Request a feature](https://github.com/P4uLT/py-netatmo-truetemp/issues/new?template=feature_request.yml)
+- **Bug Reports**: [Open an issue](https://github.com/py-netatmo-unofficial/py-netatmo-truetemp/issues/new?template=bug_report.yml)
+- **Feature Requests**: [Request a feature](https://github.com/py-netatmo-unofficial/py-netatmo-truetemp/issues/new?template=feature_request.yml)
 - **Security Issues**: See [SECURITY.md](SECURITY.md)
-- **Questions**: [GitHub Discussions](https://github.com/P4uLT/py-netatmo-truetemp/discussions)
+- **Questions**: [GitHub Discussions](https://github.com/py-netatmo-unofficial/py-netatmo-truetemp/discussions)
 
 ## License
 

@@ -161,7 +161,7 @@ After pushing to main:
 2. Click on the **Release** workflow run
 3. Monitor the steps in real-time
 
-Direct link: `https://github.com/P4uLT/py-netatmo-truetemp/actions`
+Direct link: `https://github.com/py-netatmo-unofficial/py-netatmo-truetemp/actions`
 
 ### Verify Release Success
 
@@ -413,11 +413,54 @@ The `.releaserc.json` file controls release behavior:
 {
   "branches": ["main"],
   "plugins": [
-    "@semantic-release/commit-analyzer",
-    "@semantic-release/release-notes-generator",
-    "@semantic-release/changelog",
-    "@semantic-release/exec",
-    "@semantic-release/git",
+    [
+      "@semantic-release/commit-analyzer",
+      {
+        "preset": "conventionalcommits",
+        "releaseRules": [
+          {"type": "feat", "release": "minor"},
+          {"type": "fix", "release": "patch"},
+          {"type": "perf", "release": "patch"},
+          {"type": "revert", "release": "patch"},
+          {"type": "docs", "scope": "README", "release": "patch"},
+          {"type": "refactor", "release": false},
+          {"type": "style", "release": false},
+          {"type": "chore", "release": false},
+          {"type": "test", "release": false},
+          {"type": "ci", "release": false}
+        ],
+        "parserOpts": {
+          "noteKeywords": ["BREAKING CHANGE", "BREAKING CHANGES", "BREAKING"]
+        }
+      }
+    ],
+    [
+      "@semantic-release/release-notes-generator",
+      {
+        "preset": "conventionalcommits",
+        "presetConfig": {
+          "types": [
+            {"type": "feat", "section": "Features"},
+            {"type": "fix", "section": "Bug Fixes"},
+            {"type": "perf", "section": "Performance Improvements"},
+            {"type": "revert", "section": "Reverts"},
+            {"type": "docs", "section": "Documentation", "hidden": false},
+            {"type": "style", "section": "Styles", "hidden": true},
+            {"type": "chore", "section": "Miscellaneous Chores", "hidden": true},
+            {"type": "refactor", "section": "Code Refactoring", "hidden": true},
+            {"type": "test", "section": "Tests", "hidden": true},
+            {"type": "build", "section": "Build System", "hidden": true},
+            {"type": "ci", "section": "Continuous Integration", "hidden": true}
+          ]
+        }
+      }
+    ],
+    [
+      "@semantic-release/changelog",
+      {
+        "changelogFile": "CHANGELOG.md"
+      }
+    ],
     "@semantic-release/github"
   ]
 }
@@ -425,9 +468,11 @@ The `.releaserc.json` file controls release behavior:
 
 **Key settings**:
 - `branches`: Only `main` triggers releases
-- `releaseRules`: Defines which commit types trigger releases
-- `changelogTitle`: Sets changelog header format
-- `message`: Template for release commit message
+- `commit-analyzer.releaseRules`: Defines which commit types trigger releases and version bumps
+- `commit-analyzer.parserOpts.noteKeywords`: Keywords that identify breaking changes
+- `release-notes-generator.presetConfig.types`: Defines which commit types appear in changelog and how they're organized
+- `changelog.changelogFile`: Output file for generated changelog
+- `github`: Creates GitHub Releases automatically
 
 ### GitHub Workflow Configuration
 
