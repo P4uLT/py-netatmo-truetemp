@@ -68,3 +68,41 @@ class TestInitialAuthentication:
         if sys.platform != "win32":
             file_mode = cookie_file.stat().st_mode
             assert stat.S_IMODE(file_mode) == 0o600
+
+    @responses.activate
+    def test_cached_cookies_loaded_successfully(self, tmp_path):
+        """Test that cached cookies are loaded and used for authentication."""
+        # Arrange: Create cookie file with cached session
+        cookie_file = tmp_path / "cookies.json"
+        mock_cookie_store = CookieStore(str(cookie_file))
+
+        # Pre-save cookies to file
+        cached_cookies = {
+            "session": "cached-session-123",
+            "netatmocomaccess_token": "cached-token-abc%7Cvalue",
+        }
+        mock_cookie_store.save(cached_cookies)
+
+        # Mock CSRF endpoint to validate cached session
+        responses.get(
+            "https://auth.netatmo.com/access/csrf",
+            status=200,
+            json={"token": "csrf-123"},
+        )
+
+        # Act: Create auth manager (should load cached cookies)
+        auth_manager = AuthenticationManager(
+            username="test@example.com",
+            password="password",
+            cookie_store=mock_cookie_store,
+        )
+        headers = auth_manager.get_auth_headers()
+
+        # Assert: Verify cached token used (no re-authentication)
+        assert "Authorization" in headers
+        assert "cached-token-abc|value" in headers["Authorization"]
+        # Verify no POST to login endpoint (cached session used)
+        login_calls = [
+            call for call in responses.calls if "postlogin" in call.request.url
+        ]
+        assert len(login_calls) == 0
