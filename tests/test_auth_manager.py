@@ -1,9 +1,11 @@
 """Tests for AuthenticationManager."""
 
+import pytest
 import responses
 
 from py_netatmo_truetemp.auth_manager import AuthenticationManager
 from py_netatmo_truetemp.cookie_store import CookieStore
+from py_netatmo_truetemp.exceptions import AuthenticationError
 
 
 class TestInitialAuthentication:
@@ -106,3 +108,65 @@ class TestInitialAuthentication:
             call for call in responses.calls if "postlogin" in call.request.url
         ]
         assert len(login_calls) == 0
+
+
+class TestAuthenticationFailures:
+    """Tests for authentication error handling."""
+
+    @responses.activate
+    def test_authentication_failure_raises_error(self, tmp_path):
+        """Test that authentication failures raise AuthenticationError."""
+        # Arrange
+        cookie_file = tmp_path / "cookies.json"
+        mock_cookie_store = CookieStore(str(cookie_file))
+
+        # Mock failed CSRF request
+        responses.get(
+            "https://auth.netatmo.com/en-us/access/login",
+            status=200,
+        )
+        responses.get(
+            "https://auth.netatmo.com/access/csrf",
+            status=401,
+            json={"error": "Unauthorized"},
+        )
+
+        # Act & Assert: Verify AuthenticationError raised
+        auth_manager = AuthenticationManager(
+            username="test@example.com",
+            password="wrong-password",
+            cookie_store=mock_cookie_store,
+        )
+
+        with pytest.raises(AuthenticationError, match="Failed to obtain CSRF token"):
+            auth_manager.get_auth_headers()
+
+    @responses.activate
+    def test_authentication_failure_clears_cookies(self, tmp_path):
+        """Test that failed authentication clears any cached cookies."""
+        # Arrange: Create invalid cached cookies
+        cookie_file = tmp_path / "cookies.json"
+        mock_cookie_store = CookieStore(str(cookie_file))
+        mock_cookie_store.save({"invalid": "cookies"})
+
+        # Mock CSRF to fail validation
+        responses.get(
+            "https://auth.netatmo.com/access/csrf",
+            status=401,
+        )
+
+        # Act: Attempt to use cached cookies (should fail)
+        auth_manager = AuthenticationManager(
+            username="test@example.com",
+            password="password",
+            cookie_store=mock_cookie_store,
+        )
+
+        try:
+            auth_manager.get_auth_headers()
+        except AuthenticationError:
+            pass
+
+        # Assert: Verify cookies were cleared
+        loaded_cookies = mock_cookie_store.load()
+        assert loaded_cookies is None or len(loaded_cookies) == 0
