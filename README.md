@@ -3,12 +3,12 @@
 [![CI](https://github.com/py-netatmo-unofficial/py-netatmo-truetemp/actions/workflows/ci.yml/badge.svg)](https://github.com/py-netatmo-unofficial/py-netatmo-truetemp/actions/workflows/ci.yml)
 [![Python 3.13+](https://img.shields.io/badge/python-3.13+-blue.svg)](https://www.python.org/downloads/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-[![codecov](https://codecov.io/gh/p4ult/py-netatmo-truetemp/graph/badge.svg)](https://codecov.io/gh/p4ult/py-netatmo-truetemp)
+[![codecov](https://codecov.io/gh/py-netatmo-unofficial/py-netatmo-truetemp/graph/badge.svg)](https://codecov.io/gh/py-netatmo-unofficial/py-netatmo-truetemp)
 [![Code style: ruff](https://img.shields.io/badge/code%20style-ruff-000000.svg)](https://github.com/astral-sh/ruff)
 [![Type checked: mypy](https://img.shields.io/badge/type%20checked-mypy-blue.svg)](https://mypy-lang.org/)
 [![Security: bandit](https://img.shields.io/badge/security-bandit-yellow.svg)](https://github.com/PyCQA/bandit)
 
-A Python client for the Netatmo API with **truetemperature** control - set room temperatures programmatically via the undocumented API endpoint.
+**Netatmo's missing true temperature API** - set real room temps programmatically via the undocumented truetemperature endpoint.
 
 ## ⚠️ Disclaimer
 
