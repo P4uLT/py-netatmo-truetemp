@@ -39,3 +39,6 @@ htmlcov/
 
 # Personal task configurations
 examples/Taskfile.yml
+
+# Planning documents (working drafts)
+docs/plans/
