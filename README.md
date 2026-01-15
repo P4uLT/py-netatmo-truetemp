@@ -1,5 +1,7 @@
 # py-netatmo-truetemp
 
+[![PyPI version](https://badge.fury.io/py/py-netatmo-truetemp.svg)](https://pypi.org/project/py-netatmo-truetemp/)
+[![PyPI - Downloads](https://img.shields.io/pypi/dm/py-netatmo-truetemp)](https://pypi.org/project/py-netatmo-truetemp/)
 [![CI](https://github.com/py-netatmo-unofficial/py-netatmo-truetemp/actions/workflows/ci.yml/badge.svg)](https://github.com/py-netatmo-unofficial/py-netatmo-truetemp/actions/workflows/ci.yml)
 [![Python 3.13+](https://img.shields.io/badge/python-3.13+-blue.svg)](https://www.python.org/downloads/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
@@ -37,6 +39,17 @@
 
 ## Installation
 
+### From PyPI
+
+```bash
+pip install py-netatmo-truetemp
+```
+
+Or with uv:
+```bash
+uv add py-netatmo-truetemp
+```
+
 ### From Source
 
 ```bash
@@ -51,8 +64,13 @@ uv sync
 
 ### As a Dependency
 
+**From PyPI** (recommended):
 ```bash
-# Install from GitHub (until PyPI release)
+uv add py-netatmo-truetemp
+```
+
+**From GitHub** (development version):
+```bash
 uv add "py-netatmo-truetemp @ git+https://github.com/py-netatmo-unofficial/py-netatmo-truetemp.git"
 ```
 
