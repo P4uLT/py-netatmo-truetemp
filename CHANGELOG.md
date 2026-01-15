@@ -1,3 +1,10 @@
+## [0.3.1](https://github.com/py-netatmo-unofficial/py-netatmo-truetemp/compare/v0.3.0...v0.3.1) (2026-01-15)
+
+### Documentation
+
+* **README:** standardize metadata and improve discoverability ([c725a1e](https://github.com/py-netatmo-unofficial/py-netatmo-truetemp/commit/c725a1e091abc92e023d5e0d7813366c1b4ccedc))
+* remove CLI examples and related CI checks ([#50](https://github.com/py-netatmo-unofficial/py-netatmo-truetemp/issues/50)) ([2a988c6](https://github.com/py-netatmo-unofficial/py-netatmo-truetemp/commit/2a988c6ce4a9ffe75a17136cd2a53acf58324e8d))
+
 ## [0.3.0](https://github.com/py-netatmo-unofficial/py-netatmo-truetemp/compare/v0.2.2...v0.3.0) (2026-01-13)
 
 ### Features
