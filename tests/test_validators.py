@@ -4,9 +4,11 @@ import pytest
 
 from py_netatmo_truetemp.validators import (
     validate_temperature,
+    validate_room_id,
+    validate_home_id,
 )
 from py_netatmo_truetemp.exceptions import ValidationError
-from tests.conftest import VALID_TEMPS, INVALID_TEMPS
+from tests.conftest import VALID_TEMPS, INVALID_TEMPS, VALID_IDS, INVALID_IDS
 
 
 class TestTemperatureValidation:
@@ -46,3 +48,39 @@ class TestTemperatureValidation:
             validate_temperature("20.5")  # type: ignore
         with pytest.raises(TypeError):
             validate_temperature(None)  # type: ignore
+
+
+class TestIDValidation:
+    """Tests for ID validation."""
+
+    @pytest.mark.parametrize("room_id", VALID_IDS)
+    def test_valid_room_ids_pass(self, room_id):
+        """Test that valid room IDs pass validation."""
+        validate_room_id(room_id)
+
+    @pytest.mark.parametrize("room_id", INVALID_IDS)
+    def test_invalid_room_ids_raise_error(self, room_id):
+        """Test that empty/whitespace room IDs raise ValidationError."""
+        with pytest.raises(ValidationError, match="room_id cannot be empty"):
+            validate_room_id(room_id)
+
+    @pytest.mark.parametrize("home_id", VALID_IDS)
+    def test_valid_home_ids_pass(self, home_id):
+        """Test that valid home IDs pass validation."""
+        validate_home_id(home_id)
+
+    @pytest.mark.parametrize("home_id", INVALID_IDS)
+    def test_invalid_home_ids_raise_error(self, home_id):
+        """Test that empty/whitespace home IDs raise ValidationError."""
+        with pytest.raises(ValidationError, match="home_id cannot be empty"):
+            validate_home_id(home_id)
+
+    def test_none_room_id_raises_validation_error(self):
+        """Test that None room_id raises ValidationError."""
+        with pytest.raises(ValidationError, match="room_id cannot be empty"):
+            validate_room_id(None)  # type: ignore
+
+    def test_numeric_id_raises_attribute_error(self):
+        """Test that numeric IDs raise AttributeError."""
+        with pytest.raises(AttributeError):
+            validate_room_id(123)  # type: ignore
