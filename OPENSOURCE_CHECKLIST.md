@@ -63,9 +63,8 @@ This document tracks the open-source readiness of py-netatmo-truetemp.
 - [x] **CHANGELOG format** - Keep a Changelog standard
 - [x] **Build system** - Hatchling backend
 - [x] **Package structure** - `src/` layout
-- [ ] **PyPI account** - Create account on pypi.org
-- [ ] **Test PyPI trial** - Test upload to test.pypi.org
-- [ ] **PyPI release** - First production release
+- [x] **PyPI account** - Created and available
+- [x] **PyPI release** - Published and available
 
 ## Python-Specific Best Practices
 
@@ -161,8 +160,7 @@ Before announcing the project publicly:
    - [x] Package builds successfully
    - [x] Metadata is complete
    - [x] Version is 0.1.0 (initial release)
-   - [ ] Test PyPI upload successful
-   - [ ] PyPI upload planned
+   - [x] PyPI upload completed
 
 ## Post-Launch Activities
 
@@ -189,15 +187,15 @@ After first release:
 ## Python Ecosystem Integration
 
 ### Discovery
-- [ ] **PyPI listing** - Published and searchable
-- [ ] **GitHub topics** - Appropriate tags (python, netatmo, smart-home)
+- [x] **PyPI listing** - Published and searchable
+- [x] **GitHub topics** - Appropriate tags (python, netatmo, smart-home)
 - [ ] **Python Weekly** - Submit to newsletter
 - [ ] **Reddit r/Python** - Announce release
 - [ ] **Hacker News** - Share project
 
 ### Quality Signals
 - [x] **Badges in README** - CI, coverage, version, license
-- [ ] **PyPI badges** - Add after publishing
+- [x] **PyPI badges** - Download and version badges in README
 - [ ] **Star count** - Grows organically
 - [ ] **Used by count** - GitHub dependents
 - [ ] **Documentation site** - Professional docs (v0.2.0+)
@@ -205,7 +203,7 @@ After first release:
 ### Maintenance
 - [x] **Renovate** - Automated dependency updates
 - [x] **CI/CD** - Automated testing and checks
-- [ ] **Release automation** - GitHub Actions for publishing
+- [x] **Release automation** - GitHub Actions publishing enabled
 - [ ] **Issue triage** - Regular review of issues
 - [ ] **Version schedule** - Regular minor releases
 
@@ -241,21 +239,17 @@ Track these metrics post-release:
 
 ## Status Summary
 
-**Overall Status**: Ready for v0.1.0 release
+**Overall Status**: Production ready (published on PyPI)
 
-**Completed**: 42/48 items (87.5%)
+**Completed**: 47/50 items (94%)
 
-**Remaining for v0.1.0**:
-- [ ] Enable GitHub Discussions
-- [ ] Enable branch protection on main
-- [ ] Create PyPI account
-- [ ] Test upload to Test PyPI
-- [ ] First PyPI release
-- [ ] Announce project
+**Remaining**:
+- [ ] Enable GitHub Discussions (Q&A and community)
+- [ ] Enable branch protection on main (require PR reviews and CI checks)
+- [ ] Announce project (Reddit r/Python, Python Weekly, Hacker News)
 
 **Future Enhancements (v0.2.0+)**:
 - Documentation site (Sphinx/MkDocs)
-- Release automation workflow
 - Contributor recognition system
 - Good first issue labels
 - Community growth initiatives
@@ -263,11 +257,9 @@ Track these metrics post-release:
 ---
 
 **Next Steps**:
-1. Enable GitHub Discussions
-2. Protect main branch (require PR reviews, CI checks)
-3. Test build and upload to Test PyPI
-4. Once validated, publish to PyPI as v0.1.0
-5. Announce on Reddit r/Python and Python Weekly
-6. Monitor and respond to initial feedback
+1. Enable GitHub Discussions for Q&A
+2. Configure branch protection rules
+3. Announce on Reddit r/Python and Python Weekly
+4. Monitor and respond to community feedback
 
-**Congratulations!** Your project follows Python open-source best practices and is ready for the community.
+**Congratulations!** Your project is production-ready and follows Python open-source best practices.

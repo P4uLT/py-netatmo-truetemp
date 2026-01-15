@@ -99,6 +99,23 @@ api.set_truetemperature(
 )
 ```
 
+## Usage Examples
+
+### Command-Line Interface
+
+For a complete CLI application built with this library, see:
+- **[py-netatmo-truetemp-cli](https://github.com/P4uLT/py-netatmo-truetemp-cli)** - Full-featured CLI with Typer and Rich formatting
+
+The CLI demonstrates:
+- Environment-based configuration
+- Error handling patterns
+- Room lookup by name
+- Formatted terminal output
+
+### More Examples
+
+Want to add your project here? Submit a PR or open an issue!
+
 ## Common Use Cases
 
 ### Set Temperature by Room Name
@@ -193,34 +210,6 @@ auth_manager = AuthenticationManager(
 - All API communications use HTTPS
 - No unsafe pickle serialization
 
-## Project Structure
-
-This project uses a **library + examples** structure:
-
-```
-src/py_netatmo_truetemp/     # Core library (installable package)
-   ├── __init__.py            # Package exports
-   ├── netatmo_api.py         # Main facade
-   ├── cookie_store.py        # Cookie persistence
-   ├── auth_manager.py        # Authentication (thread-safe)
-   ├── api_client.py          # HTTP client (auto-retry)
-   ├── home_service.py        # Home operations
-   ├── thermostat_service.py  # Thermostat operations
-   ├── types.py               # TypedDict definitions
-   ├── validators.py          # Input validation
-   ├── exceptions.py          # Custom exceptions
-   ├── constants.py           # API endpoints
-   └── logger.py              # Logging utilities
-
-examples/                     # Example applications (independent)
-   ├── cli.py                 # CLI entry point
-   ├── helpers.py             # Helper functions (API init, error handling)
-   ├── display.py             # Display formatting (Rich library)
-   ├── pyproject.toml         # Examples dependencies (Typer, Rich)
-   ├── .venv/                 # Isolated virtual environment
-   └── README.md              # CLI setup and usage
-```
-
 ## Development
 
 ### Library Development
@@ -229,10 +218,6 @@ examples/                     # Example applications (independent)
 # Syntax check library modules
 python -m py_compile src/py_netatmo_truetemp/*.py
 ```
-
-### Testing with Examples
-
-The `examples/` folder contains independent applications for testing library changes. See [`examples/README.md`](examples/README.md) for setup and usage instructions.
 
 ### Release Automation
 
@@ -268,8 +253,6 @@ Pre-commit hooks enforce commit message validation. For complete release workflo
 
 - [CLAUDE.md](CLAUDE.md) - Core library architecture and development guide
 - [RELEASE_WORKFLOW_GUIDE.md](RELEASE_WORKFLOW_GUIDE.md) - Release automation and workflow guide
-- [examples/README.md](examples/README.md) - CLI setup and usage instructions
-- [examples/CLAUDE.md](examples/CLAUDE.md) - CLI development workflow
 
 ## Contributing
 

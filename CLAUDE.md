@@ -142,12 +142,6 @@ For complete workflow documentation, troubleshooting, and best practices, see **
 - Release bot (GitHub App) can bypass for automated releases
 - Document reason in commit message if bypassing
 
-## CLI Examples
-
-The `examples/` folder contains demonstration applications showing how to use the library. Each example has its own isolated environment and configuration.
-
-For CLI setup, usage, and development workflow, see **`examples/CLAUDE.md`**.
-
 ## Architecture Overview
 
 The core library follows **SOLID principles** with a layered architecture using dependency injection throughout.
@@ -273,9 +267,8 @@ Inject into `AuthenticationManager` instead of `CookieStore`.
 
 ## Package Structure
 
-This project uses a **library + examples** structure for clean separation:
+This is a Python library package following modern src-layout structure:
 
-### Core Library (Installable Package)
 ```
 src/py_netatmo_truetemp/    # Installable library package
 ├── __init__.py             # Public API exports
@@ -292,20 +285,9 @@ src/py_netatmo_truetemp/    # Installable library package
 └── logger.py               # Logging
 ```
 
-### Examples (Independent Applications)
-```
-examples/                   # Independent examples folder
-├── cli.py                  # CLI application entry point
-├── helpers.py              # Helper functions (API initialization, error handling, validation)
-├── display.py              # Display formatting with Rich library
-├── pyproject.toml          # Examples dependencies (Click, Rich)
-├── .venv/                  # Isolated virtual environment
-└── CLAUDE.md               # Examples-specific documentation
-```
+**Build Configuration**: The `pyproject.toml` includes `[build-system]` configuration using Hatchling, making the library installable via pip.
 
-**Build Configuration**: The root `pyproject.toml` includes `[build-system]` configuration using Hatchling, making the library installable via pip or as an editable dependency.
-
-**Example Applications**: The `examples/` folder contains independent demonstration applications (e.g., CLI tool). Each example has its own environment and uses the library via editable install. See `examples/CLAUDE.md` for setup and usage instructions.
+**Usage Examples**: For example applications built with this library, see the [py-netatmo-truetemp-cli](https://github.com/P4uLT/py-netatmo-truetemp-cli) repository.
 
 ## Development Guidelines
 
@@ -328,8 +310,8 @@ examples/                   # Independent examples folder
 - See "Release Automation" section for detailed commit message guidelines
 
 **Testing**:
-- Test library changes using example applications
 - Validate with `python -m py_compile src/py_netatmo_truetemp/*.py`
+- Run tests: `uv run pytest`
 
 **Pre-commit Hooks**:
 - Install hooks: `uv run pre-commit install`
@@ -388,7 +370,6 @@ api = NetatmoAPI(
 
 ## See Also
 
-- **`examples/CLAUDE.md`** - CLI setup, usage, and development workflow
 - **`src/py_netatmo_truetemp/__init__.py`** - Public API exports
 - **`pyproject.toml`** - Build configuration and dependencies
 - **`RELEASE_WORKFLOW_GUIDE.md`** - Complete release automation documentation, troubleshooting, and workflow details
