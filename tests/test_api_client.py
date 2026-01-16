@@ -344,21 +344,21 @@ class TestRetryLogic:
         assert len(responses.calls) == 2
 
     @responses.activate
-    def test_403_non_auth_error_no_retry(
+    def test_403_with_empty_body_no_retry(
         self, api_client: NetatmoApiClient, mock_auth_manager: Mock
     ):
-        """Test that 403 without auth keywords doesn't retry."""
+        """Test that 403 with empty body doesn't retry (server error)."""
         responses.get(
             "https://api.netatmo.com/api/test",
             status=403,
-            json={"error": "rate limit exceeded"},
+            body="",
         )
 
         # Act & Assert
         with pytest.raises(ApiError, match="HTTP 403"):
             api_client.get("/api/test")
 
-        # Should NOT retry - invalidate should not be called
+        # Should NOT retry - empty body indicates server error
         assert mock_auth_manager.invalidate.call_count == 0
         assert mock_auth_manager.get_auth_headers.call_count == 1
         assert len(responses.calls) == 1
@@ -441,21 +441,22 @@ class TestAuthenticationErrorDetection:
     @pytest.mark.parametrize(
         "status_code,response_body,should_retry",
         [
-            # Valid auth errors (should retry)
+            # 403s with any content - retry conservatively
             (403, '{"error": "token expired"}', True),
-            (403, '{"error": "invalid credentials"}', True),
             (403, '{"error": "Forbidden"}', True),
-            (403, '{"error": "EXPIRED"}', True),  # Case insensitive
-            (403, '{"message": "access token is invalid"}', True),
-            # Non-auth 403 errors (should NOT retry)
-            (403, '{"error": "rate limit"}', False),
-            (403, '{"error": "resource not found"}', False),
-            (403, '{"error": "quota exceeded"}', False),
-            # Edge cases - current implementation does NOT retry for empty/non-keyword responses
-            # These test the actual behavior, not ideal behavior
-            (403, "", False),  # Empty response - no keywords found
-            (403, "not json", False),  # Non-JSON response - no keywords found
-            # Non-403 status codes (should NOT retry)
+            (
+                403,
+                '{"error": "rate limit"}',
+                True,
+            ),  # Conservative: retry even if might be rate limit
+            (403, '{"error": "something unusual"}', True),
+            (403, "not json", True),
+            (403, "any text content", True),
+            # Empty 403 responses - don't retry (server error)
+            (403, "", False),
+            (403, "   ", False),
+            (403, "\n\t", False),
+            # Non-403 status codes - never retry
             (401, '{"error": "unauthorized"}', False),
             (404, '{"error": "not found"}', False),
             (500, '{"error": "server error"}', False),

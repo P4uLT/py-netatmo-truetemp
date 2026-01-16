@@ -76,25 +76,33 @@ class NetatmoApiClient:
         raise ApiError(f"Request to {path} failed after {max_retries + 1} attempts")
 
     def _is_authentication_error(self, e: requests.exceptions.HTTPError) -> bool:
-        """Checks if an HTTPError is due to authentication failure."""
-        # Check for 403 Forbidden (token expired or invalid)
-        # and look for "expired" in the response
-        if e.response.status_code == 403:
-            try:
-                content = e.response.text.lower()
-                if (
-                    "expired" in content
-                    or "invalid" in content
-                    or "forbidden" in content
-                ):
-                    logger.warning(
-                        f"Detected authentication error (403): {content[:200]}"
-                    )
-                    return True
-            except Exception:
-                # If we can't parse the response, assume it's auth-related
-                return True
-        return False
+        """Checks if an HTTPError is due to authentication failure.
+
+        Conservative approach: Retry all 403s except empty responses.
+        We don't know Netatmo's exact error messages, so be conservative
+        and log actual responses to learn patterns over time.
+
+        Empty responses are likely server/gateway errors, not auth issues.
+        """
+        if e.response.status_code != 403:
+            return False
+
+        try:
+            content = e.response.text
+
+            # Empty or whitespace-only response = server/gateway error, not auth
+            if not content or not content.strip():
+                logger.warning("403 with empty body - server error, not retrying")
+                return False
+
+            # Log actual Netatmo error for learning and debugging
+            logger.warning(f"403 error (auth-related), retrying: {content[:200]}")
+            return True
+
+        except Exception as ex:
+            # Exception parsing response - conservative: retry
+            logger.warning(f"Exception parsing 403 response, retrying: {ex}")
+            return True
 
     def get(self, path: str, params: dict | None = None) -> dict[str, Any]:
         """Sends GET request to API.
