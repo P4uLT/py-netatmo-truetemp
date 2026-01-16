@@ -1,6 +1,9 @@
 """Tests for CookieStore."""
 
 import os
+import sys
+
+import pytest
 
 from py_netatmo_truetemp.cookie_store import CookieStore
 
@@ -8,6 +11,9 @@ from py_netatmo_truetemp.cookie_store import CookieStore
 class TestCookiePermissions:
     """Tests for cookie file security and permissions."""
 
+    @pytest.mark.skipif(
+        sys.platform == "win32", reason="Unix permissions not applicable on Windows"
+    )
     def test_cookie_file_created_with_secure_permissions(self, tmp_path):
         """Test that cookie files are created with 0o600 permissions."""
         # Arrange
@@ -24,6 +30,9 @@ class TestCookiePermissions:
         file_mode = os.stat(cookie_file).st_mode & 0o777
         assert file_mode == 0o600, f"Expected 0o600, got {oct(file_mode)}"
 
+    @pytest.mark.skipif(
+        sys.platform == "win32", reason="Unix permissions not applicable on Windows"
+    )
     def test_parent_directory_created_with_secure_permissions(self, tmp_path):
         """Test that parent directories are created with secure permissions."""
         # Arrange: Nested path that doesn't exist
