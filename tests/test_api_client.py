@@ -600,3 +600,24 @@ class TestEdgeCases:
 
         assert result["status"] == "ok"
         assert api_client.session is custom_session
+
+    def test_403_with_corrupted_response_retries(
+        self, api_client: NetatmoApiClient, mock_auth_manager: Mock
+    ):
+        """Test that corrupted 403 responses (AttributeError/TypeError) trigger retry."""
+        # Create a mock HTTPError with broken response.text property
+        mock_response = Mock()
+        mock_response.status_code = 403
+        # Simulate corrupted Response object where .text raises AttributeError
+        mock_response.text = Mock(
+            side_effect=AttributeError("text property unavailable")
+        )
+
+        http_error = requests.exceptions.HTTPError()
+        http_error.response = mock_response
+
+        # Act - should return True (retry) conservatively
+        should_retry = api_client._is_authentication_error(http_error)
+
+        # Assert
+        assert should_retry is True

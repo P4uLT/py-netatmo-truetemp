@@ -73,8 +73,6 @@ class NetatmoApiClient:
                 logger.error(f"Network error during {path}: {e}")
                 raise ApiError(f"Network error for {path}: {e}") from e
 
-        raise ApiError(f"Request to {path} failed after {max_retries + 1} attempts")
-
     def _is_authentication_error(self, e: requests.exceptions.HTTPError) -> bool:
         """Checks if an HTTPError is due to authentication failure.
 
@@ -99,9 +97,12 @@ class NetatmoApiClient:
             logger.warning(f"403 error (auth-related), retrying: {content[:200]}")
             return True
 
-        except Exception as ex:
-            # Exception parsing response - conservative: retry
-            logger.warning(f"Exception parsing 403 response, retrying: {ex}")
+        except (AttributeError, TypeError) as ex:
+            # Response object corrupted or text property unavailable
+            # Conservative: assume auth issue and retry
+            logger.warning(
+                f"Cannot parse 403 response (corrupted Response object), retrying: {ex}"
+            )
             return True
 
     def get(self, path: str, params: dict | None = None) -> dict[str, Any]:
