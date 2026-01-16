@@ -298,8 +298,7 @@ src/py_netatmo_truetemp/    # Installable library package
 ├── types.py                # TypedDict definitions for API responses
 ├── validators.py           # Input validation
 ├── exceptions.py           # Custom exceptions
-├── constants.py            # API endpoints
-└── logger.py               # Logging
+└── constants.py            # API endpoints
 ```
 
 **Build Configuration**: The `pyproject.toml` includes `[build-system]` configuration using Hatchling, making the library installable via pip.
