@@ -5,11 +5,11 @@ from typing import Any
 from .api_client import NetatmoApiClient
 from .constants import ApiEndpoints
 from .exceptions import HomeNotFoundError
-from .logger import setup_logger
+from .logger import get_logger
 from .types import HomesDataResponse, HomeStatusResponse
 from .validators import validate_home_id
 
-logger = setup_logger(__name__)
+logger = get_logger(__name__)
 
 
 class HomeService:

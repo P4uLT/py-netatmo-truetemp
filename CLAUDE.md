@@ -261,9 +261,26 @@ Inject into `AuthenticationManager` instead of `CookieStore`.
 ## Debugging
 
 **Authentication issues**: Delete cached cookies (see paths above) and verify credentials
-**API failures**: Enable debug logging in `logger.py`, check Netatmo API status
+**API failures**: Enable debug logging in your application (see Logging section in README.md), check Netatmo API status
 **Temperature not working**: Verify room ID via `homesdata()`, check `get_home_status()` returns valid data
 **Import issues**: Ensure `uv sync` completed successfully
+
+### Enabling Debug Logging
+
+The library uses Python's standard logging and does not configure handlers. To enable debug logging in your application:
+
+```python
+import logging
+logging.basicConfig(level=logging.DEBUG)
+
+from py_netatmo_truetemp import NetatmoAPI
+# Now you'll see DEBUG logs
+```
+
+Or configure specific library loggers:
+```python
+logging.getLogger("py_netatmo_truetemp.auth_manager").setLevel(logging.DEBUG)
+```
 
 ## Package Structure
 

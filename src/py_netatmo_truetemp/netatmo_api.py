@@ -9,11 +9,11 @@ from .api_client import NetatmoApiClient
 from .auth_manager import AuthenticationManager
 from .cookie_store import CookieStore
 from .home_service import HomeService
-from .logger import setup_logger
+from .logger import get_logger
 from .thermostat_service import ThermostatService
 from .types import HomesDataResponse, HomeStatusResponse, TrueTemperatureResponse
 
-logger = setup_logger(__name__)
+logger = get_logger(__name__)
 
 
 class NetatmoAPI:

@@ -6,9 +6,9 @@ import requests
 
 from .auth_manager import AuthenticationManager
 from .exceptions import ApiError
-from .logger import setup_logger
+from .logger import get_logger
 
-logger = setup_logger(__name__)
+logger = get_logger(__name__)
 
 # TypeVar for generic response types
 T = TypeVar("T")

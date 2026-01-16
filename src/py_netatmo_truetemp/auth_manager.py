@@ -9,9 +9,9 @@ import requests
 from .constants import ApiEndpoints, CookieNames, HttpHeaders
 from .cookie_store import CookieStore
 from .exceptions import AuthenticationError
-from .logger import setup_logger
+from .logger import get_logger
 
-logger = setup_logger(__name__)
+logger = get_logger(__name__)
 
 
 class AuthenticationManager:

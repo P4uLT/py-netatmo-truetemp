@@ -3,9 +3,9 @@
 import json
 import os
 
-from .logger import setup_logger
+from .logger import get_logger
 
-logger = setup_logger(__name__)
+logger = get_logger(__name__)
 
 
 class CookieStore:
