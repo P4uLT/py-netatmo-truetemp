@@ -73,6 +73,9 @@ class NetatmoApiClient:
                 logger.error(f"Network error during {path}: {e}")
                 raise ApiError(f"Network error for {path}: {e}") from e
 
+        # Unreachable: loop always returns or raises, but mypy needs this
+        raise AssertionError("Unreachable: all code paths should return or raise")
+
     def _is_authentication_error(self, e: requests.exceptions.HTTPError) -> bool:
         """Checks if an HTTPError is due to authentication failure.
 
