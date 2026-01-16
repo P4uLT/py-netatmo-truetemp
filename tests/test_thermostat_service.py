@@ -4,7 +4,7 @@ import pytest
 from unittest.mock import Mock
 
 from py_netatmo_truetemp.thermostat_service import ThermostatService
-from py_netatmo_truetemp.exceptions import ApiError
+from py_netatmo_truetemp.exceptions import ApiError, ValidationError, RoomNotFoundError
 
 
 class TestListRoomsWithThermostats:
@@ -159,3 +159,125 @@ class TestListRoomsWithThermostats:
 
         assert len(result) == 1
         assert result[0] == {"id": "room1", "name": "Room room1"}
+
+
+class TestSetRoomTemperature:
+    """Tests for set_room_temperature method."""
+
+    def test_set_room_temperature_success(self):
+        """Test successful temperature setting."""
+        # Arrange
+        mock_home_service = Mock()
+        mock_api_client = Mock()
+
+        # Mock get_homes_data for room name lookup
+        mock_home_service.get_homes_data.return_value = {
+            "body": {
+                "homes": [
+                    {
+                        "id": "home-123",
+                        "rooms": [{"id": "room-1", "name": "Living Room"}],
+                    }
+                ]
+            }
+        }
+
+        mock_home_service.get_home_status.return_value = {
+            "body": {
+                "home": {
+                    "rooms": [{"id": "room-1", "therm_measured_temperature": 20.0}]
+                }
+            },
+            "status": "ok",
+            "time_server": 1642345678,
+        }
+
+        mock_api_client.post_typed.return_value = {
+            "status": "ok",
+            "time_server": 1642345678,
+        }
+
+        service = ThermostatService(mock_api_client, mock_home_service)
+
+        # Act
+        service.set_room_temperature(
+            room_id="room-1",
+            home_id="home-123",
+            corrected_temperature=22.0,
+        )
+
+        # Assert: Verify API called with correct payload
+        mock_api_client.post_typed.assert_called_once()
+        call_args = mock_api_client.post_typed.call_args
+        assert call_args[0][0] == "/api/truetemperature"
+        payload = call_args[1]["json_data"]
+        assert payload["room_id"] == "room-1"
+        assert payload["home_id"] == "home-123"
+        assert payload["corrected_temperature"] == 22.0
+
+    def test_set_temperature_validation_out_of_range(self):
+        """Test that out-of-range temperature raises ValidationError."""
+        # Arrange
+        mock_home_service = Mock()
+        mock_api_client = Mock()
+        service = ThermostatService(mock_api_client, mock_home_service)
+
+        # Act & Assert
+        with pytest.raises(ValidationError, match="must be between"):
+            service.set_room_temperature(
+                room_id="room-1",
+                home_id="home-123",
+                corrected_temperature=100.0,  # Out of range
+            )
+
+    def test_set_temperature_empty_room_id_raises_error(self):
+        """Test that empty room_id raises ValidationError."""
+        # Arrange
+        mock_home_service = Mock()
+        mock_api_client = Mock()
+        service = ThermostatService(mock_api_client, mock_home_service)
+
+        # Act & Assert
+        with pytest.raises(ValidationError, match="room_id cannot be empty"):
+            service.set_room_temperature(
+                room_id="",
+                home_id="home-123",
+                corrected_temperature=20.0,
+            )
+
+    def test_set_temperature_room_not_found(self):
+        """Test that missing room raises RoomNotFoundError."""
+        # Arrange
+        mock_home_service = Mock()
+        mock_api_client = Mock()
+
+        # Mock get_homes_data for room name lookup
+        mock_home_service.get_homes_data.return_value = {
+            "body": {
+                "homes": [
+                    {
+                        "id": "home-123",
+                        "rooms": [{"id": "room-2", "name": "Other Room"}],
+                    }
+                ]
+            }
+        }
+
+        # Return status without the requested room
+        mock_home_service.get_home_status.return_value = {
+            "body": {
+                "home": {
+                    "rooms": [{"id": "room-2", "therm_measured_temperature": 20.0}]
+                }
+            }
+        }
+
+        service = ThermostatService(mock_api_client, mock_home_service)
+
+        # Act & Assert
+        with pytest.raises(RoomNotFoundError, match="room-1"):
+            service.set_room_temperature(
+                room_id="room-1",
+                home_id="home-123",
+                corrected_temperature=22.0,
+            )
