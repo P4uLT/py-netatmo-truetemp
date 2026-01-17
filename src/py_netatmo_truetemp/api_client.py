@@ -1,14 +1,14 @@
 """HTTP client for Netatmo API with automatic authentication and retry."""
 
+import logging
 from typing import Any, Callable, TypeVar
 
 import requests
 
 from .auth_manager import AuthenticationManager
 from .exceptions import ApiError
-from .logger import setup_logger
 
-logger = setup_logger(__name__)
+logger = logging.getLogger(__name__)
 
 # TypeVar for generic response types
 T = TypeVar("T")

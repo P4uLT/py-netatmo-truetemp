@@ -1,6 +1,7 @@
 """Netatmo authentication and token management."""
 
 import json
+import logging
 import threading
 import time
 
@@ -9,9 +10,8 @@ import requests
 from .constants import ApiEndpoints, CookieNames, HttpHeaders
 from .cookie_store import CookieStore
 from .exceptions import AuthenticationError
-from .logger import setup_logger
 
-logger = setup_logger(__name__)
+logger = logging.getLogger(__name__)
 
 
 class AuthenticationManager:

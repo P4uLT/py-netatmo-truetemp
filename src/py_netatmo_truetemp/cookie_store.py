@@ -1,11 +1,10 @@
 """Persistent cookie storage with secure permissions."""
 
 import json
+import logging
 import os
 
-from .logger import setup_logger
-
-logger = setup_logger(__name__)
+logger = logging.getLogger(__name__)
 
 
 class CookieStore:

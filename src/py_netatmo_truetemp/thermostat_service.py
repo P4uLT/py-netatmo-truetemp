@@ -1,10 +1,11 @@
 """Thermostat operations and temperature control."""
 
+import logging
+
 from .api_client import NetatmoApiClient
 from .constants import ApiEndpoints
 from .exceptions import ApiError, RoomNotFoundError
 from .home_service import HomeService
-from .logger import setup_logger
 from .types import HomeStatus, TrueTemperatureResponse
 from .validators import (
     validate_home_id,
@@ -12,7 +13,7 @@ from .validators import (
     validate_temperature,
 )
 
-logger = setup_logger(__name__)
+logger = logging.getLogger(__name__)
 
 # Temperature tolerance for skipping API calls (in degrees Celsius)
 TEMPERATURE_TOLERANCE_CELSIUS = 0.1

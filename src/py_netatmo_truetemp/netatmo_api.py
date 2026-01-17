@@ -1,5 +1,6 @@
 """Netatmo API client facade interface."""
 
+import logging
 import os
 
 import platformdirs
@@ -9,11 +10,10 @@ from .api_client import NetatmoApiClient
 from .auth_manager import AuthenticationManager
 from .cookie_store import CookieStore
 from .home_service import HomeService
-from .logger import setup_logger
 from .thermostat_service import ThermostatService
 from .types import HomesDataResponse, HomeStatusResponse, TrueTemperatureResponse
 
-logger = setup_logger(__name__)
+logger = logging.getLogger(__name__)
 
 
 class NetatmoAPI:

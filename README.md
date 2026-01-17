@@ -228,6 +228,56 @@ auth_manager = AuthenticationManager(
 - All API communications use HTTPS
 - No unsafe pickle serialization
 
+## Logging
+
+This library uses Python's standard logging module and does not configure handlers. By default, only WARNING and above are shown.
+
+### Control Logging in Your Application
+
+```python
+import logging
+
+# Configure logging before importing the library
+logging.basicConfig(
+    level=logging.INFO,  # or DEBUG, WARNING, ERROR
+    format="%(levelname)-8s [%(name)s:%(lineno)d] %(message)s"
+)
+
+from py_netatmo_truetemp import NetatmoAPI
+# Now you'll see INFO and above logs from the library
+```
+
+### Using Environment Variables
+
+```python
+import os
+import logging
+
+log_level = os.getenv("NETATMO_LOG_LEVEL", "WARNING").upper()
+logging.basicConfig(level=log_level)
+
+from py_netatmo_truetemp import NetatmoAPI
+```
+
+Then control via environment:
+```bash
+NETATMO_LOG_LEVEL=DEBUG python your_script.py
+```
+
+### Logger Names
+
+The library uses hierarchical logger names:
+- `py_netatmo_truetemp.auth_manager` - Authentication and session management
+- `py_netatmo_truetemp.api_client` - HTTP client operations
+- `py_netatmo_truetemp.cookie_store` - Cookie storage operations
+- `py_netatmo_truetemp.home_service` - Home data operations
+- `py_netatmo_truetemp.thermostat_service` - Thermostat operations
+
+You can configure specific loggers:
+```python
+logging.getLogger("py_netatmo_truetemp.auth_manager").setLevel(logging.DEBUG)
+```
+
 ## Development
 
 ### Library Development
